@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>صائد القيم الشاذة | لعبة ثلاثية الأبعاد</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@300;400;500;600;700&family=IBM+Plex+Sans:wght@400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/style.css">
+<style>
+/* CSS:GAME */
+.hud{display:flex;gap:8px;flex-wrap:wrap;margin-block:14px}
+.hud .hi{font-size:.85rem;font-weight:700;background:#fff;border:1px solid var(--line);border-radius:999px;padding:.3em 1em;color:var(--muted)}
+.hud .hi b{color:var(--accent-deep)}
+#game-container{position:relative;height:min(470px,68vh);min-height:320px;border:1px solid var(--line);border-radius:16px;overflow:hidden;background:radial-gradient(circle at 50% 40%,#f6fbfc 0%,#e9f2f4 60%,#dde9ec 100%);cursor:grab;touch-action:none}
+#game-container.dragging{cursor:grabbing}
+#game-container canvas{display:block}
+#msg{position:absolute;top:12px;inset-inline:0;text-align:center;font-weight:800;color:#c0392b;pointer-events:none;opacity:0;transition:opacity .25s;text-shadow:0 1px 0 #fff;padding:0 14px;z-index:2}
+#msg.show{opacity:1}
+#rotateHint{position:absolute;bottom:10px;inset-inline:0;text-align:center;font-size:.75rem;color:var(--muted);pointer-events:none;z-index:2}
+#startOverlay{background:var(--soft,#eef4f5);border:1px solid var(--line);border-radius:14px;padding:24px;margin-block:16px;text-align:center}
+#endScreen{margin-block:16px;text-align:center;padding:8px}
+</style>
+</head>
+<body>
+<nav class="topnav"><div class="wrap nav-in">
+  <a class="brand" href="index.html">عِلم البيانات <span class="en">Data Science</span></a>
+  <div class="nav-links">
+    <a href="index.html">الرئيسية</a>
+    <a href="exam.html">الاختبار الشامل</a>
+    <a class="active" href="games.html">الألعاب</a>
+  </div>
+</div></nav>
+
+<div class="wrap"><main>
+
+<header class="hero">
+  <h1>🎯 صائد القيم الشاذة</h1>
+  <p class="lede">سحابة من نقاط البيانات (Data Points) تحوم في مشهد ثلاثي الأبعاد (3D): معظمها متجمّع بهدوء حول نطاق واحد، وقيمتان ابتعدتا عن السرب. أدر المشهد، اقرأ الأرقام، وانقر على القيمة الشاذة (Outlier) قبل أن ينفد الوقت.</p>
+  <div class="btn-row" style="justify-content:center">
+    <a class="btn" href="games.html">→ عودة إلى الألعاب</a>
+  </div>
+</header>
+
+<!-- HTML:UI -->
+<div id="game-stage">
+  <div class="hud">
+    <span class="hi">الجولة <b id="hRound">—</b></span>
+    <span class="hi">النقاط <b id="hScore">0</b></span>
+    <span class="hi">الوقت <b id="hTime">30</b> ث</span>
+    <span class="hi">شاذات متبقية <b id="hLeft">—</b></span>
+  </div>
+  <div id="game-container"></div>
+</div>
+<div id="startOverlay" hidden><h3 class="box-title" style="justify-content:center">🔭 هل عينك صائدة؟</h3>
+  <p>سحابة من النقاط المرقّمة تحوم حول <b>عنقود (Cluster)</b> واحد — لكن قيمتين تسرّبتا بعيدًا عن السرب: هما <b>القيمتان الشاذتان (Outliers)</b>. أدر السحابة بالسحب، واقتنص الشاذتين بالنقر قبل أن ينفد الوقت.</p>
+  <p style="color:var(--muted);font-size:.9rem;margin-bottom:14px">🎯 إصابة شاذة = <b>+١٠</b> · نقرة على نقطة سليمة = <b>-٣</b> · <b>٥ جولات</b> · ٣٠ ثانية للجولة · أفضل نتيجة لك: <b id="oBest">—</b></p>
+  <div class="btn-row" style="justify-content:center">
+    <button id="startBtn" class="btn btn-primary" style="font-size:1.05rem">ابدأ الاقتناص 🎯</button>
+  </div></div>
+<div id="endScreen" class="end-card" hidden><h3 class="box-title" style="justify-content:center">🏁 اكتملت الجولات الخمس</h3>
+  <p id="eScore" style="font-size:1.15rem;font-weight:800;color:var(--accent-deep)"></p>
+  <p id="eMsg"></p>
+  <div class="btn-row" style="justify-content:center;margin-top:14px">
+    <button id="againBtn" class="btn btn-primary">العب مجددًا ♻️</button>
+    <a class="btn" href="games.html">صالة الألعاب</a>
+  </div></div>
+<!-- /HTML:UI -->
+
+</main></div>
+
+<footer>لعبة تعليمية ثلاثية الأبعاد (3D) من صالة ألعاب عِلم البيانات — القيمة الشاذة قد تخدع العين، لكنها لا تخدع الوسيط <span class="en">(Median)</span></footer>
+
+<script src="https://unpkg.com/three@0.160.0/build/three.min.js"></script>
+<script>
+/* JS:SCENE — المشهد، الكاميرا، والإضاءة */
+"use strict";
+var $=function(id){return document.getElementById(id)};
+var TOTAL=5,ROUND_TIME=30,BK="h3d_best";
+var st={round:0,score:0,left:2,playing:false,timeLeft:ROUND_TIME,best:0};
+try{st.best=+localStorage.getItem(BK)||0}catch(e){}
+var cont=$("game-container");
+var renderer,camera,scene,ray,points=null,anim=[],tick=null,msgT=null;
+function msg(t){
+  var el=$("msg");el.textContent=t||"";el.className=t?"show":"";
+  if(msgT)clearTimeout(msgT);
+  if(t)msgT=setTimeout(function(){el.className=""},1900);
+}
+function hud(){
+  $("hRound").textContent=st.round+"/"+TOTAL;
+  $("hScore").textContent=st.score;
+  $("hTime").textContent=st.timeLeft;
+  $("hLeft").textContent=st.playing?st.left:"—";
+}
+function initScene(){
+  if(!window.THREE){
+    cont.innerHTML='<p style="padding:40px 20px;text-align:center;color:var(--muted)">تعذّر تحميل مكتبة العرض ثلاثي الأبعاد (Three.js) — تحقق من الاتصال ثم أعد تحميل الصفحة.</p>';
+    return false;
+  }
+  scene=new THREE.Scene();
+  camera=new THREE.PerspectiveCamera(50,cont.clientWidth/Math.max(1,cont.clientHeight),.1,200);
+  renderer=new THREE.WebGLRenderer({antialias:true,alpha:true});
+  renderer.setPixelRatio(Math.min(2,window.devicePixelRatio||1));
+  renderer.setSize(cont.clientWidth,cont.clientHeight);
+  cont.appendChild(renderer.domElement);
+  scene.add(new THREE.AmbientLight(0xffffff,.78));
+  var dl=new THREE.DirectionalLight(0xffffff,.85);dl.position.set(6,10,8);scene.add(dl);
+  ray=new THREE.Raycaster();
+  var h=document.createElement("div");h.id="rotateHint";
+  h.textContent="🖐️ اسحب لإدارة السحابة · انقر لالتقاط نقطة";cont.appendChild(h);
+  var m=document.createElement("div");m.id="msg";cont.appendChild(m);
+  window.addEventListener("resize",resize);
+  return true;
+}
+function resize(){
+  if(!renderer)return;
+  camera.aspect=cont.clientWidth/Math.max(1,cont.clientHeight);
+  camera.updateProjectionMatrix();
+  renderer.setSize(cont.clientWidth,cont.clientHeight);
+}
+/* JS:GAME — مدار يدوي، نقاط، التقاط، جولات */
+var orb={t:0,p:1.15,r:16,drag:false,px:0,py:0,moved:0,downT:0};
+function bindOrbit(){
+  cont.addEventListener("pointerdown",function(e){
+    orb.drag=true;orb.px=e.clientX;orb.py=e.clientY;orb.moved=0;orb.downT=Date.now();
+    cont.classList.add("dragging");
+  });
+  window.addEventListener("pointermove",function(e){
+    if(!orb.drag)return;
+    var dx=e.clientX-orb.px,dy=e.clientY-orb.py;
+    orb.moved+=Math.abs(dx)+Math.abs(dy);
+    orb.px=e.clientX;orb.py=e.clientY;
+    orb.t-=dx*.005;
+    orb.p=Math.max(.3,Math.min(Math.PI-.3,orb.p-dy*.005));
+  });
+  window.addEventListener("pointerup",function(e){
+    if(!orb.drag)return;
+    orb.drag=false;cont.classList.remove("dragging");
+    if(orb.moved<8&&Date.now()-orb.downT<600&&st.playing)pick3d(e);
+  });
+}
+function camUpdate(){
+  var sp=Math.sin(orb.p);
+  camera.position.set(orb.r*sp*Math.cos(orb.t),orb.r*Math.cos(orb.p),orb.r*sp*Math.sin(orb.t));
+  camera.lookAt(0,0,0);
+}
+function rr(g,x,y,w,h,r){g.beginPath();g.moveTo(x+r,y);g.arcTo(x+w,y,x+w,y+h,r);g.arcTo(x+w,y+h,x,y+h,r);g.arcTo(x,y+h,x,y,r);g.arcTo(x,y,x+w,y,r);g.closePath()}
+function labelTex(txt,hot){
+  var c=document.createElement("canvas");c.width=256;c.height=128;
+  var g=c.getContext("2d");
+  g.fillStyle=hot?"#c0392b":"rgba(255,255,255,.95)";
+  rr(g,30,30,196,68,18);g.fill();
+  g.strokeStyle=hot?"#7a2020":"#1f5f6b";g.lineWidth=5;rr(g,30,30,196,68,18);g.stroke();
+  g.fillStyle=hot?"#ffffff":"#1f5f6b";
+  g.font="bold 46px Arial";g.textAlign="center";g.textBaseline="middle";
+  g.fillText(String(txt),128,65);
+  var t=new THREE.CanvasTexture(c);t.needsUpdate=true;return t;
+}
+var PAL=["#1f5f6b","#3d8f9e","#e07a5f","#8e6e95","#5e81ac","#b5838d"];
+function rndSphere(r){
+  var u=Math.random()*Math.PI*2,ph=Math.acos(2*Math.random()-1),d=r*Math.cbrt(Math.random());
+  return [d*Math.sin(ph)*Math.cos(u),d*Math.cos(ph)*.7,d*Math.sin(ph)*Math.sin(u)];
+}
+function farPos(){
+  var u=Math.random()*Math.PI*2,ph=Math.acos(2*Math.random()-1),d=8.5+Math.random()*4;
+  return [d*Math.sin(ph)*Math.cos(u),d*Math.cos(ph)*.6,d*Math.sin(ph)*Math.sin(u)];
+}
+function addPoint(v,pos,isOut,ci){
+  var geo=new THREE.SphereGeometry(isOut?.46:.34,22,16);
+  var mat=new THREE.MeshStandardMaterial({color:PAL[ci%PAL.length],roughness:.5,metalness:.08});
+  var m=new THREE.Mesh(geo,mat);
+  m.position.set(pos[0],pos[1],pos[2]);
+  m.userData={v:v,out:isOut,found:false,label:null};
+  var sp=new THREE.Sprite(new THREE.SpriteMaterial({map:labelTex(v,false),transparent:true}));
+  sp.scale.set(2.1,1.05,1);sp.position.y=1.05;
+  m.add(sp);m.userData.label=sp;
+  points.add(m);return m;
+}
+function spawnRound(){
+  if(points)scene.remove(points);
+  anim.length=0;
+  points=new THREE.Group();scene.add(points);
+  var base=35+Math.floor(Math.random()*25);
+  var n=20+Math.floor(Math.random()*6),i,p;
+  for(i=0;i<n;i++)addPoint(base+Math.floor(Math.random()*17)-8,rndSphere(3.9),false,i);
+  addPoint(base+45+Math.floor(Math.random()*30),farPos(),true,n);
+  addPoint(Math.max(2,base-45-Math.floor(Math.random()*30)),farPos(),true,n+1);
+  st.left=2;
+}
+function pick3d(e){
+  var r=renderer.domElement.getBoundingClientRect();
+  var v=new THREE.Vector2(((e.clientX-r.left)/r.width)*2-1,-((e.clientY-r.top)/r.height)*2+1);
+  ray.setFromCamera(v,camera);
+  var hits=ray.intersectObjects(points.children,true),mesh=null,i,o;
+  for(i=0;i<hits.length&&!mesh;i++){
+    o=hits[i].object;
+    while(o&&o!==points&&o.userData.v===undefined)o=o.parent;
+    if(o&&o!==points)mesh=o;
+  }
+  if(!mesh||mesh.userData.found)return;
+  var d=mesh.userData;
+  if(d.out){
+    d.found=true;st.left--;st.score+=10;
+    anim.push({m:mesh,t:0,kind:"pop"});
+    msg(st.left>0?"✅ شاذة أولى في الشِباك — بقيت واحدة!":"🎯 جولة نظيفة!");
+    if(st.left<=0){
+      st.playing=false;clearInterval(tick);
+      setTimeout(nextRound,1500);
+    }
+  }else{
+    st.score=Math.max(0,st.score-3);
+    anim.push({m:mesh,t:0,kind:"wrong"});
+    msg("😕 نقطة سليمة ("+d.v+") — القيمة الشاذة تبعد بكثير عن العنقود");
+  }
+  hud();
+}
+function timeUp(){
+  st.playing=false;clearInterval(tick);
+  points.children.forEach(function(m){
+    if(m.userData.out&&!m.userData.found)anim.push({m:m,t:0,kind:"reveal"});
+  });
+  msg("⏱️ انتهى الوقت — الشاذتان متوهّجتان بالأحمر الآن");
+  setTimeout(nextRound,2600);
+}
+function startRound(){
+  st.round++;st.playing=true;st.timeLeft=ROUND_TIME;
+  spawnRound();hud();msg("");
+  tick=setInterval(function(){
+    st.timeLeft--;$("hTime").textContent=st.timeLeft;
+    if(st.timeLeft<=0)timeUp();
+  },1000);
+}
+function nextRound(){
+  if(st.round>=TOTAL){finish();return}
+  startRound();
+}
+function finish(){
+  if(st.score>st.best){
+    st.best=st.score;
+    try{localStorage.setItem(BK,String(st.score))}catch(e){}
+  }
+  var g=st.score>=85?"🏆 صائد أسطوري — عين لا تُخدع!":
+       st.score>=60?"🔭 عين خبيرة — تحتاج تدريبًا يسيرًا":
+       st.score>=35?"👍 بداية واعدة — كرّر التدريب وستتحسن العين":
+       "💪 القيم الشاذة تخدع الجميع في البداية — أعد المحاولة!";
+  $("eScore").textContent="النتيجة: "+st.score+" من ١٠٠ — أفضل نتيجة لك: "+st.best;
+  $("eMsg").innerHTML=g+"<br><span class='en' style='font-size:.9em'>تذكّر: الشاذة تظهر فورًا على المخطط الصندوقي (Boxplot) ولا تُحرّك الوسيط (Median) — لكن في الفضاء ثلاثي الأبعاد تحتاج عينًا تقرأ الأرقام.</span>";
+  $("game-stage").hidden=true;
+  $("endScreen").hidden=false;
+  window.scrollTo({top:0,behavior:"smooth"});
+}
+function start(){
+  st.round=0;st.score=0;
+  $("startOverlay").hidden=true;$("endScreen").hidden=true;$("game-stage").hidden=false;
+  nextRound();
+}
+/* JS:POLISH — حلقة الرسم والبدء */
+function loop(now){
+  requestAnimationFrame(loop);
+  var dt=Math.min(.05,(now-(loop.last||now))/1000);loop.last=now;
+  if(!orb.drag)orb.t+=dt*.12;
+  camUpdate();
+  var i,a,m,s;
+  for(i=anim.length-1;i>=0;i--){
+    a=anim[i];a.t+=dt*2;m=a.m;
+    if(a.kind==="pop"){
+      s=1+a.t*1.8;m.scale.set(s,s,s);
+      m.material.transparent=true;m.material.opacity=Math.max(0,1-a.t);
+      m.userData.label.material.opacity=Math.max(0,1-a.t);
+      if(a.t>=1){points.remove(m);anim.splice(i,1)}
+    }else if(a.kind==="wrong"){
+      var k=Math.max(0,1-a.t);
+      s=1+Math.sin(a.t*Math.PI*5)*.2*k;
+      m.scale.set(s,s,s);
+      m.material.emissive.setRGB(.8*k,0,0);
+      if(a.t>=1){m.scale.set(1,1,1);m.material.emissive.setRGB(0,0,0);anim.splice(i,1)}
+    }else if(a.kind==="reveal"){
+      m.material.emissive.setRGB(.85,.12,.05);
+      s=1+Math.sin(a.t*Math.PI*6)*.18;m.scale.set(s,s,s);
+    }
+  }
+  renderer.render(scene,camera);
+}
+if(initScene()){
+  bindOrbit();camUpdate();
+  spawnRound(); /* سحابة عرض جمالية قبل البدء */
+  $("oBest").textContent=st.best||"—";
+  $("hBest")&&($("hBest").textContent=st.best);
+  $("startBtn").onclick=start;
+  $("againBtn").onclick=start;
+  requestAnimationFrame(loop);
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>مختبر المعاينة — عِلم البيانات</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@300;400;500;600;700&family=IBM+Plex+Sans:wght@400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/style.css">
+<style>
+/* S:layout */
+.lab{display:grid;grid-template-columns:1.15fr 1fr;gap:16px;align-items:start;margin-block:10px 16px}
+.lab2{display:grid;grid-template-columns:1.2fr 1fr;gap:16px;margin-top:16px}
+.panel{background:#fff;border:1px solid var(--line);border-radius:12px;padding:16px 16px 14px;box-shadow:0 1px 3px rgba(31,95,107,.06)}
+.p-title{font-size:1.02rem;font-weight:800;margin:0 0 10px;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.p-sub{font-size:.72rem;color:var(--muted);font-weight:500;border:1px solid var(--line);border-radius:999px;padding:.1em .75em;background:#fbfbf8}
+@media(max-width:860px){.lab,.lab2{grid-template-columns:1fr}}
+/* S:pop */
+.pop-flex{display:grid;grid-template-columns:1fr 148px;gap:12px;align-items:stretch}
+.pop-cv{border:1px solid var(--line);border-radius:12px;overflow:hidden;background:#fdfefe}
+#popCanvas{display:block;width:100%;aspect-ratio:1/1}
+.pop-side{display:flex;flex-direction:column;gap:7px;min-width:0}
+.statgrid{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.stat{border:1px solid var(--line);border-radius:10px;padding:6px 9px;background:#fbfcfa}
+.stat .s-l{font-size:.68rem;color:var(--muted);display:block;line-height:1.4}
+.stat .s-v{font-size:1.05rem;font-weight:800;color:var(--ink)}
+.stat .s-v .en{font-size:.78em}
+.mh-cap{font-size:.7rem;color:var(--muted);margin-top:1px}
+.mini-hist{flex:1;border:1px solid var(--line);border-radius:10px;padding:3px;background:#fff;min-height:78px}
+#popHist{display:block;width:100%;height:100%;min-height:72px}
+.legend{display:flex;flex-wrap:wrap;gap:6px 12px;margin-top:10px;font-size:.78rem;align-items:center}
+.legend .lg{display:inline-flex;align-items:center;gap:5px}
+.legend i{width:10px;height:10px;border-radius:50%;display:inline-block;flex:none}
+.legend .warn{color:var(--bad);font-weight:700;font-size:.72rem;border:1px dashed var(--bad);border-radius:999px;padding:.02em .6em}
+.readout{border:1.5px solid var(--accent);border-radius:12px;padding:8px 12px;margin-bottom:10px;background:var(--soft);display:none}
+.readout.show{display:block}
+.readout .ro-big{font-size:.98rem;font-weight:700}
+.readout .ro-big b{color:var(--accent-deep);font-size:1.3rem}
+.readout .ro-diff{font-size:.78rem;color:var(--muted);margin-top:2px}
+.readout .ro-diff b{font-weight:800}
+.readout .ro-diff b.ok{color:var(--ok)}
+.readout .ro-diff b.far{color:var(--bad)}
+@media(max-width:640px){.pop-flex{grid-template-columns:1fr}}
+/* S:ctrl */
+.d-label{font-size:.8rem;font-weight:700;color:var(--muted);margin:12px 0 6px}
+.d-label:first-of-type{margin-top:0}
+.dbtn-grid{display:grid;grid-template-columns:1fr 1fr;gap:7px}
+.dbtn{border:1.5px solid var(--line);background:#fbfcfa;border-radius:10px;padding:8px 10px;text-align:right;cursor:pointer;font-family:inherit;font-size:.85rem;font-weight:700;color:var(--ink);transition:border-color .15s,background .15s,transform .06s}
+.dbtn small{display:block;font-weight:500;color:var(--muted);font-size:.68rem;margin-top:2px}
+.dbtn:hover{border-color:var(--accent)}
+.dbtn:active{transform:scale(.97)}
+.dbtn.on{border-color:var(--accent);background:var(--soft);box-shadow:0 0 0 1px var(--accent) inset}
+.d-hint{font-size:.76rem;color:var(--muted);background:#fbf7ec;border:1px dashed #d8c9a3;border-radius:10px;padding:7px 10px;margin-top:8px;min-height:40px;line-height:1.7}
+.n-row{display:flex;align-items:center;gap:12px;margin-top:6px}
+.n-row input{flex:1;accent-color:var(--accent)}
+.n-row b{font-size:1.45rem;color:var(--accent-deep);min-width:56px;text-align:center;border:1px solid var(--line);border-radius:10px;padding:2px 6px;background:#fbfcfa}
+.btn-row{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
+.btn-row .btn{flex:1;white-space:nowrap}
+@media(max-width:520px){.dbtn-grid{grid-template-columns:1fr 1fr}.btn-row .btn{flex:1 1 46%}}
+/* S:dist */
+.dist-wrap{margin-top:10px;border:1px solid var(--line);border-radius:12px;padding:8px;background:#fdfefe}
+#distCanvas{display:block;width:100%;height:230px}
+/* S:insight */
+.insight-msg{font-size:.92rem;line-height:1.95;margin:0;color:var(--ink)}
+.insight-msg .en{color:var(--accent);font-weight:600}
+.insight-msg b{color:var(--accent-deep)}
+.ach-list{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:7px}
+.ach-list li{display:flex;gap:9px;align-items:flex-start;border:1px solid var(--line);border-radius:10px;padding:7px 10px;font-size:.76rem;color:var(--muted);background:#fbfcfa;transition:border-color .25s,background .25s}
+.ach-list li .a-i{font-size:1.15rem;flex:none;filter:grayscale(1);opacity:.45;line-height:1.2}
+.ach-list li b{display:block;color:var(--ink);font-size:.85rem}
+.ach-list li.done{border-color:var(--ok);background:var(--ok-soft);color:var(--ink)}
+.ach-list li.done .a-i{filter:none;opacity:1}
+.ach-list li.done b:after{content:" ✓";color:var(--ok)}
+.ach-list li.pop{animation:achpop .55s ease}
+@keyframes achpop{0%{transform:scale(.97)}45%{transform:scale(1.045)}100%{transform:scale(1)}}
+</style>
+</head>
+<body>
+<nav class="topnav"><div class="wrap nav-in">
+  <a class="brand" href="index.html">عِلم البيانات <span class="en">Data Science</span></a>
+  <div class="nav-links"><a href="index.html">الرئيسية</a><a href="exam.html">الاختبار الشامل</a><a class="active" href="games.html">الألعاب</a></div>
+</div></nav>
+<div class="wrap"><main>
+<header class="hero">
+  <h1>🎲 مختبر المعاينة</h1>
+  <p class="lede">اسحب عينات بكل التصميمات <span class="en">Sampling Designs</span> وشاهد كيف يتقلص التباين مع كبر العينة: مجتمعك 400 طالب على شبكة 20×20، لكل طالب قيمة حقيقية لدقائق استخدام هاتفه اليومية — وكل رقم تراه هنا محسوب من البيانات المولدة نفسها، بلا أرقام وهمية.</p>
+</header>
+<section class="lab">
+  <div class="panel">
+    <h3 class="p-title">👥 المجتمع <span class="en">Population</span><span class="p-sub">شبكة 20×20 · بذرة ثابتة 42</span></h3>
+    <div id="sampleReadout" class="readout"></div>
+    <div class="pop-flex">
+      <div class="pop-cv"><canvas id="popCanvas"></canvas></div>
+      <div class="pop-side"><div id="popStats" class="statgrid"></div>
+        <div class="mh-cap">توزيع قيم المجتمع <span class="en">Population Distribution</span></div>
+        <div class="mini-hist"><canvas id="popHist"></canvas></div></div>
+    </div>
+    <div id="legend" class="legend"></div>
+  </div>
+  <div class="panel">
+    <h3 class="p-title">🎛️ لوحة السحب <span class="en">Sampling Controls</span></h3>
+    <div class="d-label">1) اختر تصميم العينة <span class="en">Sampling Design</span></div>
+    <div id="designBtns" class="dbtn-grid"></div>
+    <div id="designHint" class="d-hint"></div>
+    <div class="d-label">2) حجم العينة n <span class="en">Sample Size</span></div>
+    <div class="n-row"><input type="range" id="nSlider" min="10" max="200" step="5" value="40"><b id="nVal">40</b></div>
+    <div class="btn-row"><button id="drawBtn" class="btn btn-primary">🎲 اسحب عينة جديدة</button>
+      <button id="x10Btn" class="btn">اسحب ×10</button><button id="x100Btn" class="btn">اسحب ×100</button>
+      <button id="resetBtn" class="btn btn-ghost">🗑 تصفير السحبات</button></div>
+  </div>
+</section>
+<section class="panel">
+  <h3 class="p-title">📊 توزيع المعاينة <span class="en">Sampling Distribution</span><span class="p-sub">هيستوجرام حي لمتوسطات العينات — حتى 500 سحبة</span></h3>
+  <div id="distStats" class="statgrid"></div>
+  <div class="dist-wrap"><canvas id="distCanvas"></canvas></div>
+</section>
+<section class="lab2">
+  <div class="panel"><h3 class="p-title">🧠 صندوق الاستنتاج</h3><p id="insightMsg" class="insight-msg"></p></div>
+  <div class="panel"><h3 class="p-title">🏆 الإنجازات <span id="achCount" class="p-sub">0/5</span></h3><ul id="achList" class="ach-list"></ul></div>
+</section>
+<div class="tip-box">
+  <h3 class="box-title">📌 الخلاصة</h3>
+  <p>متوسط العينة مجرّد <b>تقدير Estimator</b> يتقلب من سحبة لأخرى، وتوزيع المعاينة <span class="en">Sampling Distribution</span> هو صورة هذا التقلب: عرضه القياسي ينكمش وفق <span class="en">SE = σ/√n</span> — لكن مهما كبرت n لن يصلح تصميمًا منحازًا. <a href="class4.html">راجع الحصة 4: المجتمع وإطار المعاينة وتصميم العينة</a>، ثم اختبر نفسك في <a href="exam.html">الاختبار الشامل</a> أو عد إلى <a href="games.html">صالة الألعاب</a>.</p>
+</div>
+</main></div>
+<script>
+// [section:data] — المجتمع الثابت (بذرة 42): 400 طالب على شبكة 20×20 + كل الإحصاءات محسوبة من البيانات نفسها
+"use strict";
+var SEED=42,GRID=20,QUART=10,NPOP=GRID*GRID;
+function mulberry32(a){return function(){a|=0;a=a+0x6D2B79F5|0;var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;};}
+var rndPop=mulberry32(SEED);                       // بذرة ثابتة ⇒ نفس المجتمع لكل زائر
+function erlang(k,s){var x=0;for(var i=0;i<k;i++)x+=-Math.log(1-rndPop());return x*s;}
+var QMETA={A:{name:"الصف A",color:"#b0392e"},B:{name:"الصف B",color:"#1f5f6b"},C:{name:"الصف C",color:"#1e7a3c"},D:{name:"الصف D",color:"#7a5aa8"}};
+var POP=[];                                        // نقاط المجتمع: {r,c,q,v}
+for(var pr=0;pr<GRID;pr++)for(var pc=0;pc<GRID;pc++){
+  var pq=(pr<QUART?(pc>=QUART?"A":"B"):(pc>=QUART?"D":"C"));
+  var pv=22+erlang(2,28);                          // قاعدة ملتوية لليمين: أغلب القيم 30–120 دقيقة
+  if(rndPop()<0.05)pv+=erlang(1,55);               // 5% مستخدمون ثقال ⇒ ذيل نادر يبلغ 300+
+  if(pq==="A")pv+=55+erlang(1,22);                 // الصف A مرتفع عمدًا ⇒ مصيدة المعاينة المريحة
+  POP.push({r:pr,c:pc,q:pq,v:Math.round(pv)});
+}
+function meanOf(a){var s=0;for(var i=0;i<a.length;i++)s+=a[i];return a.length?s/a.length:0;}
+function sdOf(a){if(a.length<2)return 0;var m=meanOf(a),s=0;for(var i=0;i<a.length;i++)s+=(a[i]-m)*(a[i]-m);return Math.sqrt(s/a.length);}
+function medianOf(a){var b=a.slice().sort(function(x,y){return x-y;}),n=b.length;return n%2?b[(n-1)/2]:(b[n/2-1]+b[n/2])/2;}
+var popVals=POP.map(function(p){return p.v;});
+var POP_MEAN=meanOf(popVals),POP_MED=medianOf(popVals),POP_SD=sdOf(popVals),POP_MAX=Math.max.apply(null,popVals),POP_MIN=Math.min.apply(null,popVals);
+var QSTATS={};["A","B","C","D"].forEach(function(q){QSTATS[q]={vals:POP.filter(function(p){return p.q===q;}).map(function(p){return p.v;}),idx:[]};QSTATS[q].mean=meanOf(QSTATS[q].vals);});
+POP.forEach(function(p,i){QSTATS[p.q].idx.push(i);});
+var ALLIDX=POP.map(function(p,i){return i;});
+// ترتيب المسح الثعباني (صفًا صفًا كما يمشي المحاور ميدانيًا) — أساس التصميم النظامي
+var SURVEY=[];
+for(var sr=0;sr<GRID;sr++)for(var sc=0;sc<GRID;sc++)SURVEY.push(sr*GRID+(sr%2?GRID-1-sc:sc));
+// ترتيب «أقرب للزاوية العلوية اليمنى» — أساس المعاينة المريحة
+var CONV=POP.map(function(p,i){return{i:i,d:Math.sqrt(p.r*p.r+(GRID-1-p.c)*(GRID-1-p.c))};})
+  .sort(function(a,b){return a.d-b.d;}).map(function(o){return o.i;});
+function fmt1(x){return(Math.round(x*10)/10).toFixed(1);}
+// [section:draw-pop] — رسم المجتمع 20×20 على canvas + إحصاءاته + مفتاح الألوان (قيم الأفراد مخفية، الألوان تكشف المستوى فقط)
+var S={design:"srs",n:40,last:null,means:[]};
+function $(id){return document.getElementById(id);}
+function fitCv(el){var d=window.devicePixelRatio||1,w=el.clientWidth,h=el.clientHeight;
+  if(!w||!h){var rc=el.getBoundingClientRect();w=rc.width;h=rc.height;}
+  el.width=Math.max(2,Math.round(w*d));el.height=Math.max(2,Math.round(h*d));
+  var c=el.getContext("2d");c.setTransform(d,0,0,d,0,0);return{c:c,w:w,h:h};}
+// رتبة مئينية لكل طالب ⇒ مقياس لون: شاحب → teal غامق → دافئ للقيم القصوى
+var VALSORT=ALLIDX.slice().sort(function(a,b){return POP[a].v-POP[b].v;});
+var RANK=new Array(NPOP);
+for(var vr=0;vr<NPOP;vr++)RANK[VALSORT[vr]]=vr/(NPOP-1);
+var CSTOP=[[0,"#eef4f5"],[.5,"#a9c9cf"],[.78,"#1f5f6b"],[.92,"#b0392e"],[1,"#5f1d16"]];
+function mixC(a,b,t){function h2(c){return[parseInt(c.substr(1,2),16),parseInt(c.substr(3,2),16),parseInt(c.substr(5,2),16)];}
+  var A=h2(a),B=h2(b);return"rgb("+Math.round(A[0]+(B[0]-A[0])*t)+","+Math.round(A[1]+(B[1]-A[1])*t)+","+Math.round(A[2]+(B[2]-A[2])*t)+")";}
+function colorFor(p){for(var ci=1;ci<CSTOP.length;ci++){if(p<=CSTOP[ci][0]){var a=CSTOP[ci-1],b=CSTOP[ci];return mixC(a[1],b[1],(p-a[0])/((b[0]-a[0])||1));}}return CSTOP[CSTOP.length-1][1];}
+function drawPop(sel){
+  var f=fitCv($("popCanvas")),c=f.c,sz=f.w/GRID,mark={};
+  for(var mi=0;mi<sel.length;mi++)mark[sel[mi]]=1;
+  for(var r=0;r<GRID;r++)for(var col=0;col<GRID;col++){
+    var pi=r*GRID+col,x=col*sz,y=r*sz;
+    c.fillStyle=colorFor(RANK[pi]);c.fillRect(x+.8,y+.8,sz-1.6,sz-1.6);
+    if(mark[pi]){c.strokeStyle="#e59a0b";c.lineWidth=Math.max(1.5,sz*.15);c.strokeRect(x+.8,y+.8,sz-1.6,sz-1.6);}
+  }
+  // فاصل الأرباع (حدود الصفوف A–D) + أحرفها عند التقاطع
+  c.strokeStyle="rgba(35,38,43,.32)";c.lineWidth=1;c.setLineDash([3,3]);
+  c.beginPath();c.moveTo(f.w/2,0);c.lineTo(f.w/2,f.h);c.moveTo(0,f.h/2);c.lineTo(f.w,f.h/2);c.stroke();c.setLineDash([]);
+  c.font="700 10px 'IBM Plex Sans',sans-serif";c.textBaseline="middle";c.lineWidth=2.5;c.strokeStyle="rgba(255,255,255,.9)";
+  var LBL=[["A",f.w/2+6,"left",f.h/2-8],["B",f.w/2-6,"right",f.h/2-8],["C",f.w/2-6,"right",f.h/2+8],["D",f.w/2+6,"left",f.h/2+8]];
+  for(var li=0;li<LBL.length;li++){c.textAlign=LBL[li][2];c.strokeText(LBL[li][0],LBL[li][1],LBL[li][3]);c.fillStyle="rgba(35,38,43,.6)";c.fillText(LBL[li][0],LBL[li][1],LBL[li][3]);}
+}
+function statCell(l,v){return '<div class="stat"><span class="s-l">'+l+'</span><span class="s-v">'+v+'</span></div>';}
+function renderPopStats(){
+  $("popStats").innerHTML=
+    statCell('المتوسط الحقيقي <span class="en">μ</span> (دقيقة)',fmt1(POP_MEAN))+
+    statCell('الوسيط الحقيقي (دقيقة)',fmt1(POP_MED))+
+    statCell('الانحراف المعياري <span class="en">σ</span>',fmt1(POP_SD))+
+    statCell('حجم المجتمع <span class="en">N</span>',NPOP+' طالب');
+}
+function renderLegend(){
+  $("legend").innerHTML=
+    '<span class="lg"><i style="background:#eef4f5;border:1px solid #cfdde0"></i>قيم منخفضة</span>'+
+    '<span class="lg"><i style="background:#a9c9cf"></i>قيم متوسطة</span>'+
+    '<span class="lg"><i style="background:#1f5f6b"></i>قيم مرتفعة</span>'+
+    '<span class="lg"><i style="background:#b0392e"></i>مستخدم ثقيل نادر</span>'+
+    '<span class="lg"><i style="background:transparent;border:2.5px solid #e59a0b"></i>خلية داخل العينة</span>'+
+    '<span class="warn">⚠ قيم الأفراد مخفية — لون الخلية يكشف مستواها فقط</span>';
+}
+// [section:designs] — التصميمات الخمسة: كل تصميم دالة pick(n) تعيد فهارس مختارة من المجتمع (المريحة منحازة بنيويًا عن قصد)
+function shuffle(a){for(var i=a.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1)),t=a[i];a[i]=a[j];a[j]=t;}return a;}
+function pickSome(pool,k){k=Math.min(k,pool.length);return shuffle(pool.slice()).slice(0,k);}
+function qChips(){var h="";["A","B","C","D"].forEach(function(q){h+='<span class="lg" style="font-size:.78em"><i style="background:'+QMETA[q].color+'"></i>'+QMETA[q].name+' ≈'+fmt1(QSTATS[q].mean)+'</span>';});return h;}
+var DESIGNS={
+  srs:{name:"عشوائية بسيطة",en:"SRS",
+    hint:'🎲 <b>قرعة عادلة:</b> نخلط أسماء الـ'+NPOP+' كلها ونسحب n منها دون إرجاع — لكل طالب فرصة متساوية تمامًا. السحبات تتوسط حول μ وتتقلب بقدر <span class="en">SE=σ/√n</span> فقط.',
+    pick:function(n){return pickSome(ALLIDX,n);}},
+  strat:{name:"طبقية متناسبة",en:"Stratified",
+    hint:'🧅 نقسم المجتمع 4 طبقات (الصفوف) ونمنح كل صف نصيبه المتناسب n/4 ثم نسحب داخله عشوائيًا — تمثيل مضمون للجميع ⇒ تباين أقل من SRS عند n المساوي. '+qChips(),
+    pick:function(n){var per=Math.floor(n/4),rem=n-per*4,ord=shuffle(["A","B","C","D"]),out=[];
+      for(var i=0;i<4;i++)out=out.concat(pickSome(QSTATS[ord[i]].idx,per+(i<rem?1:0)));
+      return out;}},
+  cluster:{name:"عنقودية",en:"Cluster",
+    hint:'🏘 نقرّع على الصفوف أنفسها (n≤100 ⇒ صف واحد، n>100 ⇒ صفان) ثم تُسحب العينة كلها من داخل الفائزين فقط. أرخص ميدانيًا، لكن حظ العنقود يحدد النتيجة — جرّب «اسحب ×100» وسترى توزيعًا ثنائي القمم <span class="en">Bimodal</span>! '+qChips(),
+    pick:function(n){var g=n>100?2:1,qs=shuffle(["A","B","C","D"]).slice(0,g),per=Math.floor(n/g),rem=n-per*g,out=[];
+      for(var i=0;i<qs.length;i++)out=out.concat(pickSome(QSTATS[qs[i]].idx,per+(i<rem?1:0)));
+      return out;}},
+  syst:{name:"منتظمة",en:"Systematic",
+    hint:'🐍 نمشي «المسح الثعباني» — صفٌ لليمين ثم صفٌ لليسار كما يمشي المحافظ ميدانيًا — ونلتقط كل خلية رقم k بدءًا من نقطة عشوائية. انتشار مكاني منتظم ⇒ سلوك قريب من SRS مع سهولة تنفيذ أكبر.',
+    pick:function(n){var k=Math.floor(NPOP/n),st=Math.floor(Math.random()*k),out=[];
+      for(var i=st;i<NPOP&&out.length<n;i+=k)out.push(SURVEY[i]);
+      return out;}},
+  conv:{name:"مريحة (مصيدة!)",en:"Convenience",
+    hint:'⚠️ <b>مصيدة كلاسيكية:</b> نسأل الأقرب للزاوية العلوية اليمنى — وأول 40 منهم كلهم من الصف A المرتفع (≈'+fmt1(QSTATS.A.mean)+' دقيقة مقابل μ='+fmt1(POP_MEAN)+')! هذا <b>تحيّز اختيار Selection Bias</b>: كبر n والتكرار يقرّبانك من متوسط الجيران لا من متوسط المجتمع.',
+    pick:function(n){return CONV.slice(0,n);}}
+};
+var DORDER=["srs","strat","cluster","syst","conv"];
+var DSUB={srs:"قرعة عادلة بين الـ"+NPOP,strat:"نصيب عادل من كل صف",cluster:"صفوف كاملة بالقرعة",syst:"كل خلية رقم k في المسح",conv:"جيران الزاوية — احذر ⚠"};
+function renderDesigns(){
+  var h="";
+  for(var i=0;i<DORDER.length;i++){var k=DORDER[i];
+    h+='<button type="button" class="dbtn'+(S.design===k?" on":"")+'" data-d="'+k+'">'+DESIGNS[k].name+' <span class="en">'+DESIGNS[k].en+'</span><small>'+DSUB[k]+'</small></button>';}
+  $("designBtns").innerHTML=h;
+  var bs=$("designBtns").getElementsByTagName("button");
+  for(var j=0;j<bs.length;j++)bs[j].onclick=function(){selectDesign(this.getAttribute("data-d"));};
+  selectDesign(S.design);
+}
+function selectDesign(k){
+  S.design=k;
+  var bs=$("designBtns").getElementsByTagName("button");
+  for(var i=0;i<bs.length;i++)bs[i].className="dbtn"+(bs[i].getAttribute("data-d")===k?" on":"");
+  $("designHint").innerHTML=DESIGNS[k].hint;
+}
+// [section:draw-sample] — تنفيذ السحبة (1/10/100 مرة): تعليم الخلايا + إحصاءات آخر عينة في لوحة القراءة
+function doDraw(count){
+  count=count||1;
+  var d=DESIGNS[S.design],last=null,best=1e9;
+  for(var t=0;t<count;t++){
+    var idxs=d.pick(S.n),vals=[];
+    for(var i=0;i<idxs.length;i++)vals.push(POP[idxs[i]].v);
+    last={idxs:idxs,vals:vals,mean:meanOf(vals),med:medianOf(vals),sd:sdOf(vals)};
+    var az=Math.abs(last.mean-POP_MEAN)/POP_SD;
+    if(az<best)best=az; // أفضل سحبة داخل الدفعة تُقيَّم للشارات (عادل مع «اسحب ×100»)
+    S.means.push(last.mean);
+    if(S.means.length>500)S.means.shift();
+  }
+  S.last=last;AUX.draws+=count;AUX.used[S.design]=1;saveAux();
+  drawPop(last.idxs);renderReadout();drawDist();renderDistStats();updateInsight();checkAch(best,last.idxs.length);
+}
+function renderReadout(){
+  var ro=$("sampleReadout"),L=S.last;
+  if(!L){ro.className="readout";ro.innerHTML="";return;}
+  var diff=L.mean-POP_MEAN,az=Math.abs(diff)/POP_SD;
+  ro.className="readout show";
+  ro.innerHTML='<div class="ro-big">متوسط عينتك الأخيرة ('+L.idxs.length+' طالبًا · '+DESIGNS[S.design].name+' <span class="en">'+DESIGNS[S.design].en+'</span>): <b>'+fmt1(L.mean)+'</b> دقيقة</div>'
+   +'<div class="ro-diff">الحقيقة <span class="en">μ</span> = '+fmt1(POP_MEAN)+' دقيقة → الفرق <b class="'+(az<=0.3?"ok":"far")+'">'+(diff>=0?"+":"−")+fmt1(Math.abs(diff))+' دقيقة ('+fmt1(az)+'σ)</b> · وسيط العينة '+fmt1(L.med)+' · انحرافها '+fmt1(L.sd)+'</div>';
+}
+// [section:histogram] — هيستوجرام توزيع المجتمع المصغّر + هيستوجرام توزيع المعاينة الحي (متوسطات العينات حتى 500)
+function drawPopHist(){
+  var f=fitCv($("popHist")),c=f.c,B=14,cnt=[],span=(POP_MAX-POP_MIN)||1;
+  for(var i=0;i<B;i++)cnt.push(0);
+  for(var j=0;j<NPOP;j++)cnt[Math.min(B-1,Math.floor((popVals[j]-POP_MIN)/span*B))]++;
+  var mx=Math.max.apply(null,cnt),hh=f.h-16,bw=f.w/B;
+  for(var b=0;b<B;b++){var bh=cnt[b]/mx*hh;
+    c.fillStyle="rgba(31,95,107,.88)";c.fillRect(b*bw+.5,f.h-2-bh,bw-1,bh);}
+  c.strokeStyle="#e4e1d7";c.beginPath();c.moveTo(0,f.h-1.5);c.lineTo(f.w,f.h-1.5);c.stroke();
+  var mxp=(POP_MEAN-POP_MIN)/span*(f.w-bw)+bw/2;
+  c.strokeStyle="#b0392e";c.setLineDash([3,2]);c.beginPath();c.moveTo(mxp,4);c.lineTo(mxp,f.h-2);c.stroke();c.setLineDash([]);
+  c.fillStyle="#b0392e";c.font="600 9px 'IBM Plex Sans',sans-serif";c.textAlign="center";c.textBaseline="alphabetic";c.fillText("μ",mxp,9);
+}
+function drawDist(){
+  var f=fitCv($("distCanvas")),c=f.c;
+  c.clearRect(0,0,f.w,f.h);
+  if(!S.means.length){
+    c.fillStyle="#6b7076";c.font="600 13px 'IBM Plex Sans Arabic',sans-serif";c.textAlign="center";c.textBaseline="middle";
+    c.fillText("اضغط «اسحب عينة» ثم كرّر (×10 / ×100) لتبني توزيع المعاينة هنا…",f.w/2,f.h/2);
+    return;
+  }
+  var lo=Math.min.apply(null,S.means),hi=Math.max.apply(null,S.means),pad=(hi-lo)*.08+1;
+  lo-=pad;hi+=pad;
+  var span=hi-lo,B=Math.min(24,Math.max(8,Math.round(S.means.length/3))),cnt=[];
+  for(var i=0;i<B;i++)cnt.push(0);
+  for(var j=0;j<S.means.length;j++)cnt[Math.min(B-1,Math.floor((S.means[j]-lo)/span*B))]++;
+  var mx=Math.max.apply(null,cnt),top=26,axh=f.h-30,hh=axh-top,bw=f.w/B;
+  function xOf(v){return (v-lo)/span*f.w;}
+  var se=POP_SD/Math.sqrt(S.n);
+  c.fillStyle="rgba(31,95,107,.10)"; // نطاق الخطأ المعياري النظري ±SE حول μ
+  c.fillRect(xOf(POP_MEAN-se),top,Math.max(2,xOf(POP_MEAN+se)-xOf(POP_MEAN-se)),axh-top);
+  for(var b=0;b<B;b++){var bh=cnt[b]/mx*hh;
+    c.fillStyle="rgba(31,95,107,.9)";c.fillRect(b*bw+.5,axh-bh,Math.max(1,bw-1),bh);}
+  c.strokeStyle="#e4e1d7";c.beginPath();c.moveTo(0,axh+.5);c.lineTo(f.w,axh+.5);c.stroke();
+  c.strokeStyle="#b0392e";c.setLineDash([4,3]);c.beginPath();c.moveTo(xOf(POP_MEAN),top-4);c.lineTo(xOf(POP_MEAN),axh);c.stroke();c.setLineDash([]);
+  c.fillStyle="#b0392e";c.font="700 11px 'IBM Plex Sans Arabic',sans-serif";c.textAlign="center";c.textBaseline="alphabetic";
+  c.fillText("الحقيقة μ="+fmt1(POP_MEAN),xOf(POP_MEAN),top-8);
+  c.fillStyle="#6b7076";c.font="600 10px 'IBM Plex Sans Arabic',sans-serif";
+  c.textAlign="left";c.fillText(fmt1(lo),4,f.h-10);
+  c.textAlign="right";c.fillText(fmt1(hi)+" دقيقة",f.w-4,f.h-10);
+  c.textAlign="center";c.fillText("متوسط العينة — الشريط الفاتح = نطاق ±SE المتوقع",f.w/2,f.h-10);
+  c.textAlign="left";c.fillText("التكرار ↑",4,top-8);
+}
+function renderDistStats(){
+  var se=POP_SD/Math.sqrt(S.n),m=S.means;
+  var h=statCell("عدد السحبات المعروضة (حد أقصى 500)",m.length?m.length:0)+
+    statCell("متوسط متوسطات العينات",m.length?fmt1(meanOf(m))+" دقيقة":"—")+
+    statCell("الانحراف المعياري التجريبي للسحبات",m.length?fmt1(sdOf(m))+" دقيقة":"—")+
+    statCell("الخطأ المعياري النظري SE=σ/√n (لـn="+S.n+")",fmt1(se)+" دقيقة");
+  $("distStats").innerHTML=h;
+}
+// [section:insights] — تفكيك نتيجة كل سحبة: الخطأ مقابل σ، النجوم، ثم شرح خاص بالتصميم المستخدم
+function stars(n){var s="";for(var i=0;i<3;i++)s+=i<n?"★":"☆";return s;}
+function qShares(idxs){var sh={A:0,B:0,C:0,D:0};for(var i=0;i<idxs.length;i++)sh[POP[idxs[i]].q]++;return sh;}
+function updateInsight(){
+  var el=$("insightMsg");
+  if(!S.last){
+    el.innerHTML='اختر تصميم العينة وحجمها ثم اضغط <b>«اسحب عينة جديدة»</b>. هنا نفكّ لك نتيجة كل سحبة: لماذا اقتربت من الحقيقة أو ابتعدت عنها، وبأي قدر يتوقع الإحصاء أن يتقلب تقديرك — ثم جرّب <b>«اسحب ×100»</b> لترى توزيع المعاينة كاملًا.';
+    return;
+  }
+  var L=S.last,diff=L.mean-POP_MEAN,az=Math.abs(diff)/POP_SD,n=L.idxs.length,se=POP_SD/Math.sqrt(n);
+  var st=az<=0.15?3:az<=0.3?2:az<=0.5?1:0;
+  var head='<b>دقة السحبة: '+stars(st)+'</b> — الخطأ = |متوسط العينة − μ| = <b>'+fmt1(Math.abs(diff))+'</b> دقيقة ('+fmt1(az)+'σ)، والمتوقع نظريًا SE≈'+fmt1(se)+' دقيقة ('+fmt1(se/POP_SD)+'σ). ';
+  var verdict,extra="";
+  if(st===3)verdict='ممتاز! أصبت الحقيقة داخل 0.15σ — أدق مما يتوقعه الإحصاء غالبًا. ';
+  else if(st===2)verdict='جيد: خطأ ضمن نطاق التقلب الطبيعي للصدفة. ';
+  else if(st===1)verdict='مقبول: سحبة عادية لكن الحظ لم يحالفك — كرر لتشاهد التقلب بنفسك. ';
+  else verdict='بعيد عن الحقيقة! مع تصميم عشوائي هذه سحبة شاذة نادرة — كرر وستعود المتوسطات للالتفاف حول μ. ';
+  if(S.design==="conv"){
+    extra='<b>تحيّز اختيار Selection Bias:</b> عينتك «جيران الزاوية العلوية اليمنى» — أول 40 منهم كلهم من الصف A المرتفع (≈'+fmt1(QSTATS.A.mean)+' مقابل μ='+fmt1(POP_MEAN)+'). زيادة n هنا تقرّبك من متوسط الصف A لا من المجتمع، والتكرار يجمع السحبات حول قيمة خاطئة ثابتة: لاحظ توزيعك كله يجلس بعيدًا عن خط μ الحقيقي! ';
+  }else if(S.design==="cluster"){
+    var sh=qShares(L.idxs),tq="A",tp=-1;
+    ["A","B","C","D"].forEach(function(q){if(sh[q]>tp){tp=sh[q];tq=q;}});
+    var pct=Math.round(tp/n*100);
+    extra='مع عنقود واحد أو اثنين فقط، حظ القرعة يحدد النتيجة: '+pct+'% من عينتك من الصف '+QMETA[tq].name+' (متوسطه '+fmt1(QSTATS[tq].mean)+' مقابل μ='+fmt1(POP_MEAN)+'). لهذا يتشقق توزيع المعاينة إلى قمم ويصير أعرض بكثير من SRS عند n المساوي — <b>أثر التصميم Design Effect</b>: الرخص الميداني له ثمن إحصائي. ';
+  }else if(S.design==="strat"){
+    extra='الطبقية ألزمت كل صفٍ بنصيبه المتناسب، فأزلت التباين بين الصفوف (A مرتفع والبقية متقاربة) ⇒ تقديرك أهدأ من SRS عند n نفسه — قارن عرض توزيعك هنا وبتصميم SRS. ';
+  }else if(S.design==="syst"){
+    extra='المنتظمة نشرت نقاطك بانتظام على المسح الثعباني كله — عشوائية نقطة البداية هي كل الحظ هنا، فسلوكها قريب من SRS مع سهولة تنفيذ ميداني أكبر. ';
+  }else{
+    extra='سحبت عشوائية من إطار كامل غير متحيّز ⇒ قانون الأعداد الكبيرة LLN يعمل لصالحك: كبّر n أو كرّر السحب وسترى الأخطاء تتقلص وفق <span class="en">SE=σ/√n</span>. ';
+  }
+  var tail='وسيط العينة '+fmt1(L.med)+' وانحرافها المعياري '+fmt1(L.sd)+' (الحقيقة: '+fmt1(POP_MED)+' و'+fmt1(POP_SD)+').';
+  el.innerHTML=head+verdict+extra+tail;
+}
+// [section:achievements] — 5 شارات: تُكتسب بالأداء وتُحفظ في localStorage (إنجاز مكتسب لا يُسقطه تصفير السحبات)
+var ACHKEY="dsh-sampling-ach",AUXKEY="dsh-sampling-aux";
+var ACH=[
+  {id:"sharp",ico:"🎯",t:"دقة الصياد",d:"سحبة خطؤها ≤ 0.15σ من μ"},
+  {id:"bigN",ico:"📈",t:"حجم أكبر أعلى ثقة",d:"n ≥ 80 وخطأ ≤ 0.3σ في سحبة واحدة"},
+  {id:"bias",ico:"🔍",t:"كاشف التحيّز",d:"جرّبت المريحة ورأيت انحرافها بعينيك"},
+  {id:"all5",ico:"🧪",t:"جرّبها كلها",d:"سحبت بالتصميمات الخمسة كلها"},
+  {id:"lln",ico:"⚖️",t:"قانون الأعداد الكبيرة",d:"100 سحبة تراكمية وتراقب انكماش التوزيع"}
+];
+var AUX={used:{},draws:0};
+function loadAch(){
+  try{var s=JSON.parse(localStorage.getItem(AUXKEY));if(s&&typeof s.draws==="number"&&s.used)AUX=s;}catch(e){}
+}
+function saveAux(){try{localStorage.setItem(AUXKEY,JSON.stringify(AUX));}catch(e){}}
+function loadAchList(){try{return JSON.parse(localStorage.getItem(ACHKEY))||[];}catch(e){return[];}}
+function saveAchList(l){try{localStorage.setItem(ACHKEY,JSON.stringify(l));}catch(e){}}
+function renderAch(popIds){
+  var got=loadAchList(),h="";
+  for(var i=0;i<ACH.length;i++){var a=ACH[i],on=got.indexOf(a.id)>=0;
+    h+='<li class="'+(on?"done":"")+(popIds&&popIds[a.id]?" pop":"")+'"><span class="a-i">'+a.ico+'</span><span><b>'+a.t+'</b>'+a.d+'</span></li>';}
+  $("achList").innerHTML=h;
+  $("achCount").textContent=got.length+"/"+ACH.length;
+}
+function checkAch(bestAz,n){
+  var fresh={};
+  if(bestAz<=0.15)fresh.sharp=1;
+  if(n>=80&&bestAz<=0.3)fresh.bigN=1;
+  if(S.design==="conv")fresh.bias=1;
+  var u=1;
+  for(var i=0;i<DORDER.length;i++)if(!AUX.used[DORDER[i]])u=0;
+  if(u)fresh.all5=1;
+  if(AUX.draws>=100)fresh.lln=1;
+  var got=loadAchList(),any=0;
+  for(var k in fresh)if(got.indexOf(k)<0){got.push(k);any=1;}
+  if(any)saveAchList(got);
+  renderAch(any?fresh:null);
+}
+// [section:wire-up] — التهيئة والربط: كل معرّف HTML في الصفحة مربوط هنا
+function init(){
+  S.n=+$("nSlider").value;$("nVal").textContent=S.n;
+  loadAch();
+  renderDesigns();renderPopStats();drawPop([]);renderLegend();drawPopHist();
+  renderDistStats();drawDist();updateInsight();renderReadout();renderAch();
+  $("nSlider").oninput=function(){S.n=+this.value;$("nVal").textContent=S.n;renderDistStats();drawDist();};
+  $("drawBtn").onclick=function(){doDraw(1);};
+  $("x10Btn").onclick=function(){doDraw(10);};
+  $("x100Btn").onclick=function(){doDraw(100);};
+  $("resetBtn").onclick=function(){
+    S.means=[];S.last=null;AUX.draws=0;saveAux();
+    renderReadout();drawPop([]);drawDist();renderDistStats();updateInsight();
+  };
+  var rsT;
+  window.onresize=function(){clearTimeout(rsT);rsT=setTimeout(function(){
+    drawPop(S.last?S.last.idxs:[]);drawPopHist();drawDist();
+  },150);};
+}
+init();
+</script>
+</body>
+</html>

@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>لعبة لجنة الأخلاقيات — عِلم البيانات</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@300;400;500;600;700&family=IBM+Plex+Sans:wght@400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/style.css">
+<style>
+.hud{display:flex;gap:8px;flex-wrap:wrap;margin-block:14px}
+.hud .hi{font-size:.85rem;font-weight:700;background:#fff;border:1px solid var(--line);border-radius:999px;padding:.3em 1em;color:var(--muted)}
+.hud .hi b{color:var(--accent-deep)}
+.trow{display:flex;align-items:center;gap:10px;margin-block:4px 0}
+.trow .tnum{font-weight:800;color:var(--accent-deep);min-width:2.2em;text-align:center}
+.tbar{height:10px;border-radius:999px;background:var(--line-soft);overflow:hidden;border:1px solid var(--line);flex:1}
+#tfill{height:100%;background:var(--accent);width:100%}
+#tfill.low{background:var(--bad)}
+.dbtns{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:10px;margin-top:14px}
+.dbtns .btn{font-size:1rem}
+.dbtns .en{background:transparent;border:none;padding:0;font-size:.72em;opacity:.85}
+.d-app{background:var(--ok-soft)!important;border-color:var(--ok)!important;color:var(--ok)!important}
+.d-rev{background:var(--warn-soft)!important;border-color:var(--warn)!important;color:var(--warn)!important}
+.d-rej{background:var(--bad-soft)!important;border-color:var(--bad)!important;color:var(--bad)!important}
+.case-tag{display:inline-block;font-size:.78rem;font-weight:700;color:var(--accent-deep);background:var(--soft);border:1px solid var(--line);border-radius:999px;padding:.15em .9em;margin-bottom:.4em}
+#riskmeter{height:12px;border-radius:999px;background:var(--line-soft);border:1px solid var(--line);overflow:hidden;margin-block:6px}
+#riskfill{height:100%;width:0;background:var(--warn)}
+#report .tip-box{text-align:start}
+</style>
+</head>
+<body>
+<nav class="topnav"><div class="wrap nav-in">
+  <a class="brand" href="index.html">عِلم البيانات <span class="en">Data Science</span></a>
+  <div class="nav-links">
+    <a href="index.html">الرئيسية</a>
+    <a href="exam.html">الاختبار الشامل</a>
+    <a class="active" href="games.html">الألعاب</a>
+  </div>
+</div></nav>
+
+<div class="wrap"><main>
+
+<header class="hero">
+  <h1>⚖️ لجنة الأخلاقيات</h1>
+  <p class="lede">اجلس عضوًا في لجنة أخلاقيات البيانات: ثماني مشاريع على طاولتك، وعشرون ثانية لكل قرار. اعتمد المشروع، اطلب تعديله، أو ارفضه — لكن تذكّر: كل قرار خاطئ يسرّب مخاطر متبقية <span class="en">Residual Risk</span> إلى العالم الحقيقي.</p>
+  <div class="btn-row" style="justify-content:center">
+    <a class="btn" href="games.html">→ عودة إلى صالة الألعاب</a>
+  </div>
+</header>
+
+<div class="tip-box">
+  <h3 class="box-title">📋 قواعد الجلسة</h3>
+  <ul>
+    <li>٨ قضايا من حصة أخلاقيات البيانات: إزالة المعرفات، التقليل، التمثيل، تحيز القياس، «العام لا يعني الأخلاقي»، الموافقة، التحيز التحليلي، التحيز التاريخي.</li>
+    <li>٢٠ ثانية لكل قضية — إذا تأخرت، يمر الطلب تلقائيًا كما في اللجان الحقيقية.</li>
+    <li>القرار الصحيح يمنح ١٠ نقاط، وكل إجابة صحيحة متتالية ترفع المنح ٥ نقاط حتى ٢٥ للقضية.</li>
+    <li>كل خطأ أو تأخير يسرّب مخاطر متبقية <span class="en">Residual Risk</span> — والتقرير النهائي يحاسبك عليها نقطةً نقطة.</li>
+  </ul>
+</div>
+
+<div id="intro" class="apply-box" style="text-align:center">
+  <h3 class="box-title" style="justify-content:center">القضايا الثماني تنتظر قرارك</h3>
+  <p>أفضل نتيجة مسجلة على هذا الجهاز: <b id="introBest">—</b></p>
+  <button id="startBtn" class="btn btn-primary" style="font-size:1.05rem">اضغط الجرس وابدأ الجلسة 🔔</button>
+</div>
+
+<div id="stage" hidden>
+  <div class="hud">
+    <span class="hi">القضية <b id="hRound">1/8</b></span>
+    <span class="hi">النقاط <b id="hScore">0</b></span>
+    <span class="hi">سلسلة الصواب <b id="hStreak">0</b> 🔥</span>
+    <span class="hi">مخاطر مسربة <b id="hRisk">0</b></span>
+    <span class="hi">الأفضل <b id="hBest">—</b></span>
+  </div>
+  <div class="trow"><span class="tnum" id="tNum">20</span>
+    <div class="tbar"><div id="tfill"></div></div>
+  </div>
+  <div class="apply-box">
+    <span class="case-tag" id="caseTag"></span>
+    <h3 id="caseTitle" style="margin:.2em 0"></h3>
+    <p id="caseText" style="font-size:1.02rem"></p>
+    <p style="color:var(--muted);font-size:.88rem;margin-bottom:0">ما قرار اللجنة؟</p>
+    <div class="dbtns">
+      <button class="btn d-app" id="bApp">اعتماد المشروع<br><span class="en">Approve</span></button>
+      <button class="btn d-rev" id="bRev">اطلب تعديلًا<br><span class="en">Revise</span></button>
+      <button class="btn d-rej" id="bRej">ارفض المشروع<br><span class="en">Reject</span></button>
+    </div>
+  </div>
+</div>
+
+<div id="verdict" class="qfb" hidden>
+  <b id="vTitle"></b>
+  <span id="vText"></span>
+  <div class="qfoot"><button id="nextBtn" class="btn btn-primary">القضية التالية ←</button></div>
+</div>
+
+<div id="report" class="end-card" hidden>
+  <div class="grade" id="rGrade">—</div>
+  <p class="score-line" id="rScore"></p>
+  <p class="score-line" id="rBestLine"></p>
+  <div class="tip-box">
+    <h3 class="box-title">🧾 تقرير المخاطر المتبقية <span class="en">Residual Risk</span></h3>
+    <p id="rRiskLine"></p>
+    <div id="riskmeter"><div id="riskfill"></div></div>
+    <p id="rRiskWhy" style="font-size:.92rem;color:var(--muted)"></p>
+  </div>
+  <div id="review"></div>
+  <div class="btn-row" style="justify-content:center;margin-top:18px">
+    <button id="againBtn" class="btn btn-primary">جلسة جديدة ♻️</button>
+    <a class="btn" href="games.html">صالة الألعاب</a>
+  </div>
+</div>
+
+</main></div>
+<script>
+var SCEN=[
+{tag:"إزالة المعرفات · De-identification",title:"سجلات المرضى تخرج للبحث",
+ text:"مستشفى يريد مشاركة سجلات المرضى مع فريق بحثي. حذفوا الأسماء وأرقام الهواتف، لكنهم أبقوا الرمز البريدي وتاريخ الميلاد الكامل. حجتهم: «لا أسماء، إذن البيانات مجهولة الهوية».",
+ ok:"rev",
+ why:"قاعدة سويني: 87% من الناس يمكن إعادة تعريفهم من الرمز البريدي + تاريخ الميلاد + الجنس وحدها. هذا ليس مجهول هوية، هذا وجه قناع رقيق. الصواب: اطلب تعميم شبه المعرفات أو حذفها قبل أي مشاركة.",
+ risk:5},
+{tag:"طلب مستوفٍ للشروط",title:"فريق بحث منضبط",
+ text:"فريق طلب وصولًا لبيانات تجربة سريرية: الموافقة المستنيرة تغطي أغراض البحث تحديدًا، الأعمدة المطلوبة قليلة (العمر، الجرعة، الاستجابة)، هناك خطة حذف بعد سنتين، وقد أجروا فحص إعادة التعريف قبل الإرسال.",
+ ok:"app",
+ why:"كل معايير اللجنة مستوفاة: موافقة صريحة، تقليل للأعمدة اللازمة فقط، عمر محدد للبيانات، وفحص إعادة التعريف تم. ليس كل مشروع بيانات مذنبًا — الصواب: اعتمد.",
+ risk:2},
+{tag:"التقليل · Minimization",title:"طلب بـ 47 عمودًا",
+ text:"فريق التسويق يطلب 47 عمودًا من قاعدة العملاء — العنوان، تاريخ الميلاد، سجل الشراء الكامل، درجة الولاء — لبناء نموذج تنبؤ بسيط عن هجر العملاء لا يحتاج فعليًا أكثر من 6 أعمدة.",
+ ok:"rev",
+ why:"مبدأ التقليل: اجمع الحد الأدنى اللازم فقط. 41 عمودًا زائدًا = 41 بابًا إضافيًا للتسريب والسوء استخدام. الصواب: رجّع الطلب ليشتري 6 أعمدة لا قاعدة كاملة.",
+ risk:4},
+{tag:"التمثيل · Representation",title:"نموذج ائتمان من مدينة واحدة",
+ text:"نموذج تقييم ائتماني دُرّب على بيانات مدينة واحدة يغلب عليها كبار الموظفين في المدن الكبرى — والبنك يريد نشره غدًا على كل فروعه في الدولة.",
+ ok:"rev",
+ why:"تحيز التمثيل: العينة لا تمثل من ستُطبَّق عليهم القرارات. النموذج سيرسب أهل الأرياف والقطاعات الغائبة عن التدريب — لا لأنهم أقل جدارة، بل لأنهم غابوا عن البيانات. الصواب: اجمع تمثيلًا أشمل أولًا.",
+ risk:5},
+{tag:"تحيز القياس · Measurement Bias",title:"استبيان وطني عبر الهواتف الذكية",
+ text:"معهد يريد قياس الرفاه المالي لكل سكان الدولة عبر استبيان يُجاب عنه فقط من داخل تطبيق هاتف ذكي، مدفوعًا بجائزة نقدية لمن يكمله.",
+ ok:"rev",
+ why:"تحيز القياس: أداة الجمع نفسها تستبعد كبار السن والفقراء وسكان المناطق الريفية — أي ترفع من هم أفضل أصلًا وتخفض من لا يملكون الهاتف أصلًا. الصواب: غيّر أداة القياس أو ادمج قنوات بديلة.",
+ risk:4},
+{tag:"العام لا يعني الأخلاقي · Public Data",title:"كشط منشورات منتدى صحي",
+ text:"فريق كشط ملايين المنشورات من منتدى صحي عام ليتنبأ بالأمراض المزمنة من طريقة الكتابة. دفاعهم: «المنشورات عامة، فأي أحد يستطيع قراءتها».",
+ ok:"rej",
+ why:"كون البيانات عامة لا يعني أن استخدامها أخلاقي: الكاتب شارك ليناصب الغرباء، لا ليُشخّص من بعيد. القرار الصحيح هنا رفض — لا تعديل يغسل هذا الغرض.",
+ risk:5},
+{tag:"الموافقة · Consent",title:"فحوص طبية تصبح إعلانات",
+ text:"شركة تأمين جمعت فحوصًا طبية بموافقة نصت على «لأغراض الرعاية الصحية فقط»، والآن تعيد استخدامها لبناء استهداف إعلاني لمنتجات التخسيس.",
+ ok:"rej",
+ why:"الغرض تغيّر جوهريًا: الموافقة الأصلية لا تغطي التسويق، وإعادة الاستخدام بلا موافقة جديدة انتهاك مباشر — لا «تعديل» يصححه. الصواب: رفض.",
+ risk:6},
+{tag:"التحيز التاريخي · Historical Bias",title:"«الدقة 91%» في نموذج يظلم",
+ text:"نموذج فرز سير ذاتية في الإنتاج يخفض درجات المتقدمات النساء بثبات، والفريق يرفض إيقافه لأن «دقته على الاختبار 91% والوقت ضيق».",
+ ok:"rej",
+ why:"تحيز تاريخي: النموذج تعلم من سنوات قرارات ظالمة، ودقته العالية تعني أنه يتقن تكرار الظلم بثقة. نظام يميز هكذا وهو حي يجب إيقافه فورًا — الصواب: رفض، والدقة ليست مبررًا للأذى.",
+ risk:6}
+];
+var ACT={app:"اعتماد",rev:"طلب تعديل",rej:"رفض"};
+var BESTKEY="ethics-best";
+var st,timer=null,tLeft=0,TOTAL=SCEN.length,TIME=20;
+function $(id){return document.getElementById(id)}
+function best(){return +(localStorage.getItem(BESTKEY)||0)}
+function show(el,on){el.hidden=!on}
+function hud(){
+  $("hRound").textContent=(st.i+1)+"/"+TOTAL;
+  $("hScore").textContent=st.score;
+  $("hStreak").textContent=st.streak;
+  $("hRisk").textContent=st.risk;
+  $("hBest").textContent=best()||"—";
+}
+function startGame(){
+  st={i:0,score:0,streak:0,risk:0,log:[]};
+  show($("intro"),false);show($("report"),false);show($("verdict"),false);
+  show($("stage"),true);hud();renderCase();
+}
+function renderCase(){
+  var c=SCEN[st.i];
+  show($("verdict"),false);
+  $("caseTag").textContent=c.tag;
+  $("caseTitle").textContent=c.title;
+  $("caseText").textContent=c.text;
+  ["bApp","bRev","bRej"].forEach(function(b){$(b).disabled=false});
+  tLeft=TIME;
+  $("tfill").classList.remove("low");
+  $("tfill").style.width="100%";
+  $("tNum").textContent=TIME;
+  clearInterval(timer);
+  timer=setInterval(tick,100);
+}
+function tick(){
+  tLeft-=0.1;
+  var pct=Math.max(0,tLeft/TIME*100);
+  $("tfill").style.width=pct+"%";
+  $("tfill").classList.toggle("low",tLeft<=5);
+  $("tNum").textContent=Math.max(0,Math.ceil(tLeft));
+  if(tLeft<=0){decide("app",true)}
+}
+function decide(act,timedOut){
+  clearInterval(timer);
+  ["bApp","bRev","bRej"].forEach(function(b){$(b).disabled=true});
+  var c=SCEN[st.i];
+  var hit=act===c.ok&&!timedOut;
+  var pts=0;
+  if(hit){
+    st.streak++;
+    pts=Math.min(25,10+(st.streak-1)*5);
+    st.score+=pts;
+  }else{
+    st.streak=0;
+    if(act!==c.ok)st.risk+=c.risk; /* harmful outcome passed through */
+  }
+  st.log.push({t:c.title,ok:c.ok,mine:act,hit:hit,pts:pts,timedOut:!!timedOut,why:c.why,tag:c.tag,risk:c.risk});
+  var v=$("verdict");
+  v.className="qfb "+(hit?"ok":"bad");
+  v.hidden=false;
+  $("vTitle").textContent=hit
+    ?"✅ قرار سليم (+"+pts+" نقطة"+(st.streak>1?" — سلسلة ×"+st.streak:"")+")"
+    :(timedOut?"⏰ انتهى الوقت — الطلب مرّ تلقائيًا":"❌ القرار الذي اتخذته");
+  $("vText").innerHTML=(timedOut
+    ?"تأخرت فمرّ الطلب كما هو («اعتماد» تلقائي). "
+    :"قرارك: "+ACT[act]+". ")+c.why;
+  hud();
+  v.scrollIntoView({behavior:"smooth",block:"center"});
+}
+function nextCase(){
+  st.i++;
+  if(st.i>=TOTAL){finalReport()}else{renderCase()}
+  $("stage").scrollIntoView?$("stage").scrollIntoView({behavior:"smooth"}):0;
+}
+function finalReport(){
+  clearInterval(timer);
+  show($("stage"),false);show($("verdict"),false);
+  show($("report"),true);
+  var MAXS=170,MAXR=SCEN.reduce(function(a,c){return a+c.risk},0);
+  var g=$("rGrade");
+  if(st.risk<=5){g.textContent="🛡️ لجنة حصينة";g.className="grade g-high"}
+  else if(st.risk<=14){g.textContent="⚖️ أداء متوازن";g.className="grade g-high"}
+  else if(st.risk<=24){g.textContent="⚠️ مخاطر تسربت";g.className="grade g-mid"}
+  else{g.textContent="🚨 اللجنة غفلت عنها";g.className="grade g-low"}
+  $("rScore").textContent="النقاط: "+st.score+" / "+MAXS+" — مخاطر مسربة: "+st.risk+" / "+MAXR;
+  var b=best(),isNew=st.score>b;
+  if(isNew)localStorage.setItem(BESTKEY,st.score);
+  $("rBestLine").textContent=isNew?"🏆 رقم جديد على هذا الجهاز!":"أفضل نتيجة لك: "+Math.max(b,st.score);
+  $("rRiskLine").innerHTML="سرّبت هذه الجلسة <b>"+st.risk+" وحدة</b> من المخاطر المتبقية <span class=\"en\">Residual Risk</span> (الحد الأقصى "+MAXR+").";
+  $("riskfill").style.width=Math.min(100,st.risk/MAXR*100)+"%";
+  $("rRiskWhy").textContent="المخاطر المتبقية هي الضرر الذي يظل محتملًا في العالم بعد قرار اللجنة: حتى القرار الصحيح لا يلغي كل خطر، لكن القرار الخاطئ — أو التأخير حتى يمر الطلب تلقائيًا — يضيف مخاطر كانت قابلة للمنع. راجع ملف كل قضية أدناه لترى أين تسربت.";
+  var rv=$("review");rv.innerHTML="";
+  st.log.forEach(function(L){
+    var d=document.createElement("div");d.className="review-item";
+    d.innerHTML='<div class="rq">'+L.tag+' — '+L.t+'</div>'
+      +'<div class="ra">القرار الصواب: '+ACT[L.ok]+(L.hit?' ✓ أخذت به':'')+'</div>'
+      +(L.hit?"":'<div class="ry">قرارك: '+(L.timedOut?"تأخير (مرور تلقائي)":ACT[L.mine])+' ✗ — سرّب '+L.risk+' وحدة مخاطر</div>')
+      +'<div class="rx">'+L.why+'</div>';
+    rv.appendChild(d);
+  });
+}
+$("startBtn").onclick=startGame;
+$("againBtn").onclick=startGame;
+$("nextBtn").onclick=nextCase;
+$("bApp").onclick=function(){decide("app",false)};
+$("bRev").onclick=function(){decide("rev",false)};
+$("bRej").onclick=function(){decide("rej",false)};
+$("introBest").textContent=best()||"—";
+</script>
+</body>
+</html>

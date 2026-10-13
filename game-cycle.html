@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>لعبة دورة حياة مشروع البيانات — عِلم البيانات</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@300;400;500;600;700&family=IBM+Plex+Sans:wght@400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/style.css">
+<style>
+.hud{display:flex;gap:8px;flex-wrap:wrap;margin-block:14px}
+.hud .hi{font-size:.85rem;font-weight:700;background:#fff;border:1px solid var(--line);border-radius:999px;padding:.3em 1em;color:var(--muted)}
+.hud .hi b{color:var(--accent-deep)}
+#orbit{position:relative;width:min(430px,88vw);aspect-ratio:1/1;margin:6px auto}
+#hub{position:absolute;left:50%;top:50%;width:150px;height:150px;transform:translate(-50%,-50%)}
+#ring{position:absolute;inset:0;border-radius:50%;background:conic-gradient(var(--accent) 0%,var(--line-soft) 0)}
+#hub::after{content:"";position:absolute;inset:13px;background:#fff;border-radius:50%;box-shadow:0 2px 10px rgba(0,0,0,.08)}
+#needle{position:absolute;left:calc(50% - 2px);bottom:50%;width:4px;height:38%;background:linear-gradient(to top,transparent,var(--accent-deep));border-radius:4px;transform-origin:bottom center;transition:transform .7s cubic-bezier(.6,.05,.25,1.15);z-index:3}
+#needle::before{content:"";position:absolute;top:-8px;left:calc(50% - 5px);width:10px;height:10px;border-radius:50%;background:var(--accent-deep)}
+.hub-txt{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:2}
+.hub-txt b{font-size:1.6rem;color:var(--accent-deep);line-height:1}
+.hub-txt small{color:var(--muted);font-size:.72rem}
+.nd{position:absolute;width:74px;height:74px;border-radius:50%;background:#fff;border:2px solid var(--line);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;transform:translate(-50%,-50%);transition:border-color .25s,box-shadow .25s,opacity .25s,background .25s;z-index:2;font-family:inherit;padding:2px}
+.nd .n-ic{font-size:1.35rem;line-height:1}
+.nd .n-ar{font-size:.66rem;font-weight:700;line-height:1.15}
+.nd .n-en{font-size:.55rem;opacity:.7;line-height:1}
+.nd.locked{opacity:.45}
+.nd.locked .n-ic{filter:grayscale(1)}
+.nd.active{border-color:var(--accent);cursor:pointer;animation:glow 1.4s infinite}
+.nd.done{border-color:var(--ok);background:var(--ok-soft);cursor:default}
+@keyframes glow{0%,100%{box-shadow:0 0 0 4px rgba(31,95,107,.14)}50%{box-shadow:0 0 0 12px rgba(31,95,107,.05)}}
+#mission{margin-top:14px;border-top:1px dashed var(--line);padding-top:12px}
+#mission h3{margin:.2em 0}
+.dbtns{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:10px;margin-top:12px}
+.opt{text-align:start;font-size:.95rem;font-family:inherit}
+.opt.bad{animation:shk .4s;border-color:var(--bad);background:var(--bad-soft)}
+.opt.off{opacity:.4;pointer-events:none}
+@keyframes shk{0%,100%{transform:translateX(0)}20%{transform:translateX(-8px)}40%{transform:translateX(8px)}60%{transform:translateX(-5px)}80%{transform:translateX(5px)}}
+.stars{font-size:1.2rem;letter-spacing:3px;color:var(--warn)}
+.stars .off{opacity:.22}
+</style>
+</head>
+<body>
+<nav class="topnav"><div class="wrap nav-in">
+  <a class="brand" href="index.html">عِلم البيانات <span class="en">Data Science</span></a>
+  <div class="nav-links">
+    <a href="index.html">الرئيسية</a>
+    <a href="exam.html">الاختبار الشامل</a>
+    <a class="active" href="games.html">الألعاب</a>
+  </div>
+</div></nav>
+
+<div class="wrap"><main>
+
+<header class="hero">
+  <h1>🔄 دورة حياة مشروع البيانات</h1>
+  <p class="lede">كل مشروع بيانات يتحرك في حلقة لا في خط مستقيم: سؤال ثم جمع ثم تهيئة ثم تحليل ثم عرض ثم تكرار. هنا ستقود مشروع «خطوات الصف» عبر حلقاته الست: فعّل كل عقدة بالترتيب، واختر مخرجها الصحيح، حتى تُتم الدورة دورةً كاملة وتدور بك من جديد.</p>
+  <div class="btn-row" style="justify-content:center">
+    <a class="btn" href="games.html">→ عودة إلى صالة الألعاب</a>
+  </div>
+</header>
+
+<div class="tip-box">
+  <h3 class="box-title">📋 قواعد الدورة</h3>
+  <ul>
+    <li>ست عقدات على محيط الدائرة، وكل عقدة مقفلة 🔒 حتى تُنجز التي قبلها — الدورة لا تُختصر.</li>
+    <li>اضغط العقدة المتوهّجة فتظهر لك مهمة المرحلة وثلاثة مخرجات محتملة — اختر المخرج الصحيح.</li>
+    <li>الاختيار الصحيح يضيء العقدة ويدفع المؤشر إلى الحلقة التالية، والخاطئ يهتزّ ويُحسب عليك خطأ.</li>
+    <li>عند إكمال الحلقات الست يدور المؤشر دورة كاملة — والدورة تخبرك بلسان حالها أن ما انتهى سيعود.</li>
+  </ul>
+</div>
+
+<div id="intro" class="apply-box" style="text-align:center">
+  <h3 class="box-title" style="justify-content:center">المؤشر على الساعة 12</h3>
+  <p>أفضل نتيجة مسجلة على هذا الجهاز: <b id="introBest">—</b></p>
+  <button id="startBtn" class="btn btn-primary" style="font-size:1.05rem">ابدأ الدورة 🔄</button>
+</div>
+
+<div id="stage" hidden>
+  <div class="hud">
+    <span class="hi">المرحلة <b id="hStage">0/6</b></span>
+    <span class="hi">النقاط <b id="hScore">0</b></span>
+    <span class="hi">سلسلة الصواب <b id="hStreak">0</b> 🔥</span>
+    <span class="hi">الأخطاء <b id="hMiss">0</b></span>
+    <span class="hi">الأفضل <b id="hBest">—</b></span>
+  </div>
+  <div class="apply-box">
+    <p id="rScene" style="color:var(--muted)"></p>
+    <div id="orbit">
+      <div id="hub">
+        <div id="ring"></div>
+        <div id="needle"></div>
+        <div class="hub-txt"><b id="hubN">0</b><small>/6 دورة</small></div>
+      </div>
+    </div>
+    <p id="hintLine" style="text-align:center;font-weight:700"></p>
+    <div id="mission" hidden>
+      <span class="case-tag" id="mTag"></span>
+      <h3 id="mTitle" style="margin:.2em 0"></h3>
+      <p id="mText"></p>
+      <div class="dbtns" id="mOpts"></div>
+    </div>
+  </div>
+</div>
+
+<div id="fin" class="apply-box" hidden>
+  <h3 class="box-title" style="justify-content:center">🌀 دورة كاملة!</h3>
+  <div id="finBody"></div>
+  <button id="againBtn" class="btn">دورة جديدة 🔁</button>
+</div>
+
+</main></div>
+<script>
+"use strict";
+var $=function(id){return document.getElementById(id)};
+var BK="cyc_best";
+var STAGES=[
+{ic:"❓",ar:"سؤال العمل",en:"Ask",tag:"المرحلة ١ من ٦ · فهم المشكلة",
+ scene:"☕ اجتماع الانطلاق: مديرة المدرسة، فريق «خطوات الصف»، وسبورة بيضاء فارغة.",
+ title:"ما سؤال العمل الذي يقود المشروع؟",
+ text:"مديرتك قالت: «أريدوا تحسين خطوات الصف الصباحية». كيف تحوّل طلبها إلى سؤال عمل صالح لدورة البيانات؟",
+ opts:["«أي خطوة من خطوات التجمع الصباحي تستغرق أطول زمن، ولماذا؟»",
+       "«اجمعوا كل ما يمكن من أرقام عن المدرسة ثم نقرر»",
+       "«اصنعوا لوحة عرض جميلة عن الروح المعنوية أولاً»"],
+ ok:0},
+{ic:"📥",ar:"جمع البيانات",en:"Collect",tag:"المرحلة ٢ من ٦ · جمع البيانات",
+ scene:"⏱️ ساحة المدرسة ٧:٤٥ صباحًا: ساعة إيقاف، وعين ملاحظة، ودفتر ملاحظات.",
+ title:"ما أعدل طريقة لجمع بيانات زمن خطوات الصف؟",
+ text:"قررتم قياس زمن كل خطوة من خطوات التجمع عبر أيام متعددة. أي خطة جمع أكثر عدلًا وأقل تحيزًا؟",
+ opts:["رقم ملاحظة لكل صف في ٥ أيام مختلفة، مع تدوين الخطوة وزمنها في كل مرة",
+       "قياس مرة واحدة في يوم ممطر لأنه أسرع يوم للوصول",
+       "سؤال الطالب المفضّل لديكم عن رأيه فقط"],
+ ok:0},
+{ic:"🧹",ar:"تهيئة البيانات",en:"Clean",tag:"المرحلة ٣ من ٦ · التهيئة والفحص",
+ scene:"💻 جدول البيانات أمامك: ١٢٠ صفًا … وبعض الفوضى: خانات فارغة وزمن «٩٩٩ ثانية».",
+ title:"كيف تهيّئ البيانات قبل التحليل؟",
+ text:"في عمود «الزمن (ثانية)» وجدتم القيمة ٩٩٩، وخانات فارغة، وخطوة مكتوبة «تجمع» مرة و«التجمع» مرة. ماذا تفعلون؟",
+ opts:["مراجعة ٩٩٩ كخطأ إدخال محتمل ومعالجته، توحيد الكتابة «التجمع»، وتوثيق كل معالجة بدل التخمين",
+       "ترك ٩٩٩ كما هي؛ قيمة كبيرة واحدة لن تؤثر على النتائج",
+       "حذف كل صف فيه أي خانة فارغة دون توثيق القرار"],
+ ok:0},
+{ic:"🔍",ar:"التحليل",en:"Analyze",tag:"المرحلة ٤ من ٦ · التحليل",
+ scene:"📈 بعد التهيئة: وسيط زمن «التجمع في الطابور» = ٤٠ ثانية، وبقية الخطوات تحت ١٥ ثانية.",
+ title:"ما الاستنتاج الصحيح من التحليل؟",
+ text:"حسبتم الوسيط لكل خطوة فوجدتم خطوة واحدة تستحوذ على معظم الزمن، والمقارنة كشفت صفين متأخرين دائمًا. ماذا تقولون للمديرة؟",
+ opts:["«التجمع في الطابور هو عنق الزجاجة، والصفان الخامس والسادس يحتاجان دعمًا — هذا ما تُظهره الأرقام»",
+       "«كل الطلاب بطيئون ونحتاج عقوبات عامة»",
+       "«الأرقام متقاربة ولا يوجد فرق يستحق التغيير»"],
+ ok:0},
+{ic:"📊",ar:"عرض النتائج",en:"Share",tag:"المرحلة ٥ من ٦ · العرض والتوصية",
+ scene:"🖼️ غرفة المعلمين: عرض من ثلاث شرائح أمام إدارة المدرسة.",
+ title:"كيف تعرضون النتيجة على متخذ القرار؟",
+ text:"لديكم ١٢٠ صف بيانات ومخططات كثيرة. ما أفضل طريقة لإقناع الإدارة في ثلاث دقائق؟",
+ opts:["مخطط أعمدة واحد يبرز عنق الزجاجة، مع تمييز الصفين المتأخرين وتوصية واحدة قابلة للتنفيذ",
+       "جدول بكل الـ١٢٠ صفًا كي يرى الجميع كل التفاصيل بأنفسهم",
+       "شرائح كثيرة مليئة بالمصطلحات الإحصائية لإظهار الاحتراف"],
+ ok:0},
+{ic:"🔁",ar:"التكرار",en:"Iterate",tag:"المرحلة ٦ من ٦ · التكرار",
+ scene:"🗓️ بعد أسبوعين من التطبيق: زمن التجمع تحسّن من ٤٠ إلى ٣٢ ثانية فقط… وتوقّف التحسّن.",
+ title:"الدورة انتهت… أم بدأت للتو؟",
+ text:"التحسين توقف عند ٣٢ ثانية. ما الخطوة التالية الصحيحة في دورة حياة مشروع البيانات؟",
+ opts:["العودة إلى سؤال العمل وصياغته من جديد على ضوء ما تعلمنا، وجمع بيانات جديدة لقياس أثر التغيير",
+       "إعلان نجاح المشروع وإغلاق الملف نهائيًا — ٣٢ ثانية رقم جيد",
+       "تغيير التوصية عشوائيًا كل يومين حتى يتحسن الزمن"],
+ ok:0}
+];
+var st={i:0,score:0,streak:0,miss:0,open:false};
+function best(){try{return +localStorage.getItem(BK)||0}catch(e){return 0}}
+function saveBest(v){try{localStorage.setItem(BK,v)}catch(e){}}
+function hud(){
+  $("hStage").textContent=st.i+"/6";$("hScore").textContent=st.score;
+  $("hStreak").textContent=st.streak;$("hMiss").textContent=st.miss;
+  $("hBest").textContent=best()||"—";
+}
+function ring(p){$("ring").style.background="conic-gradient(var(--accent) "+p+"%,var(--line-soft) 0)"}
+function needle(deg){$("needle").style.transform="rotate("+deg+"deg)"}
+function nodePos(i){var a=(-90+i*60)*Math.PI/180;return [50+42*Math.cos(a),50+42*Math.sin(a)]}
+function buildNodes(){
+  Array.prototype.forEach.call(document.querySelectorAll(".nd"),function(n){n.remove()});
+  STAGES.forEach(function(s,i){
+    var n=document.createElement("div");
+    n.className="nd"+(i===0?" active":" locked");
+    var p=nodePos(i);n.style.left=p[0]+"%";n.style.top=p[1]+"%";
+    n.innerHTML='<span class="n-ic">'+s.ic+'</span><span class="n-ar">'+s.ar+'</span><span class="n-en">'+s.en+'</span>';
+    n.onclick=function(){if(!st.open&&i===st.i&&st.i<6)openMission()};
+    $("orbit").appendChild(n);s.el=n;
+  });
+}
+function setScene(){
+  var s=STAGES[st.i];
+  $("rScene").textContent=s.scene;
+  $("hintLine").innerHTML="💡 اضغط العقدة المتوهّجة: «"+s.ar+"» "+s.ic;
+  $("hubN").textContent=st.i;
+}
+function openMission(){
+  var s=STAGES[st.i];st.open=true;
+  $("mTag").textContent=s.tag;$("mTitle").textContent=s.title;$("mText").textContent=s.text;
+  var box=$("mOpts");box.innerHTML="";
+  s.opts.forEach(function(t,j){
+    var b=document.createElement("button");
+    b.className="btn opt";b.textContent=t;
+    b.onclick=function(){pick(j,b)};
+    box.appendChild(b);
+  });
+  $("mission").hidden=false;
+}
+function pick(j,btn){
+  var s=STAGES[st.i];
+  if(j!==s.ok){
+    st.miss++;st.streak=0;hud();
+    btn.classList.remove("bad");void btn.offsetWidth;btn.classList.add("bad");
+    setTimeout(function(){btn.classList.add("off")},450);
+    return;
+  }
+  st.score+=10;st.streak++;st.open=false;
+  s.el.className="nd done";
+  $("mission").hidden=true;
+  st.i++;
+  hud();needle(st.i*60);ring(st.i/6*100);$("hubN").textContent=st.i;
+  if(st.i>=6)finish();else setScene();
+}
+function finish(){
+  $("hintLine").innerHTML="🌀 دورة كاملة — وما انتهى سيعود!";
+  $("rScene").textContent="🎯 اكتملت الحلقات الست. انظر إلى المؤشر: دار دورة كاملة وعاد إلى نقطة البداية — وهكذا كل مشروع بيانات: نتيجة اليوم سؤال الغد.";
+  var stars=st.miss===0?3:st.miss<=2?2:1,starHtml="",k;
+  for(k=0;k<3;k++)starHtml+='<span class="'+(k<stars?"":"off")+'">★</span>';
+  if(st.score>best())saveBest(st.score);
+  var nb=best();
+  $("finBody").innerHTML='<p style="font-size:1.1rem">نقاطك: <b>'+st.score+'</b> من ٦٠ — الأخطاء: <b>'+st.miss+'</b> — أفضل نتيجة لك: <b>'+nb+'</b></p>'
+   +'<div class="stars" style="text-align:center">'+starHtml+'</div>'
+   +'<p>'+(stars===3?"🏅 دورة بلا أخطاء — دقة مهندس بيانات حقيقي!":stars===2?"👍 دورة جيدة؛ راجع المراحل التي أخطأت فيها ثم أعد الكَرّة.":"💪 البدايات كذلك — الدورة تُتقن بالتكرار. جرّب مرة أخرى!")+'</p>';
+  $("fin").hidden=false;hud();
+  $("fin").scrollIntoView({behavior:"smooth",block:"center"});
+}
+function start(){
+  st.i=0;st.score=0;st.streak=0;st.miss=0;st.open=false;
+  $("intro").hidden=true;$("fin").hidden=true;$("mission").hidden=true;
+  $("stage").hidden=false;
+  needle(0);ring(0);hud();buildNodes();setScene();
+}
+$("introBest").textContent=best()||"—";
+$("hBest").textContent=best()||"—";
+$("startBtn").onclick=start;
+$("againBtn").onclick=start;
+</script>
+</body>
+</html>

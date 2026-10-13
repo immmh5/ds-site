@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>اقتناص الوسيط | المتوسط مقابل الوسيط</title>
+<link rel="stylesheet" href="assets/style.css">
+<style>
+:root{--nl:#1f5f6b}
+#game-area{position:relative;margin-block:10px}
+#nline-wrap{position:relative;height:190px;background:#fff;border:1px solid var(--line);border-radius:14px;padding:0 30px;overflow:hidden}
+#nline{position:absolute;left:30px;right:30px;top:128px;height:4px;background:var(--nl);border-radius:2px;cursor:crosshair}
+#nline .tick{position:absolute;top:8px;width:2px;height:12px;background:var(--nl);opacity:.45;transform:translateX(-50%)}
+#nline .tick-lb{position:absolute;top:24px;transform:translateX(-50%);font-size:.72rem;color:var(--muted);font-weight:600;direction:ltr}
+#balloons{position:absolute;inset:0}
+.balloon{position:absolute;width:52px;height:60px;border-radius:50% 50% 50% 50%/45% 45% 55% 55%;transform:translate(-50%,-100%);cursor:pointer;border:2px solid rgba(0,0,0,.08);box-shadow:0 3px 8px rgba(31,95,107,.18);transition:transform .15s,box-shadow .15s;display:flex;align-items:center;justify-content:center}
+.balloon::after{content:"";position:absolute;bottom:-9px;left:50%;transform:translateX(-50%);width:2px;height:10px;background:rgba(0,0,0,.25)}
+.balloon .bv{font-weight:800;font-size:.95rem;color:#fff;text-shadow:0 1px 2px rgba(0,0,0,.3)}
+.balloon:hover{transform:translate(-50%,-108%);box-shadow:0 8px 16px rgba(31,95,107,.3)}
+.balloon.picked{outline:3px solid var(--nl);outline-offset:2px}
+.balloon.out{background:repeating-linear-gradient(45deg,#e8b4b8,#e8b4b8 6px,#d99ba1 6px,#d99ba1 12px)!important}
+#nline .marker{position:absolute;top:-72px;transform:translateX(-50%);text-align:center;transition:left .5s cubic-bezier(.4,1.4,.6,1)}
+#nline .marker .pin{width:14px;height:14px;border-radius:50%;border:3px solid #fff;box-shadow:0 2px 6px rgba(0,0,0,.3);margin:0 auto}
+#nline .marker.med .pin{background:var(--ok,#2e7d32)}
+#nline .marker.mean .pin{background:#c0392b}
+#nline .marker .ml{font-size:.7rem;font-weight:700;color:var(--nl);white-space:nowrap}
+#nline .drop{position:absolute;top:-16px;width:34px;height:34px;border-radius:50%;border:2px dashed var(--nl);background:rgba(31,95,107,.08);transform:translate(-50%,-50%);animation:dropPulse 1s infinite alternate}
+@keyframes dropPulse{from{box-shadow:0 0 0 0 rgba(31,95,107,.3)}to{box-shadow:0 0 0 10px rgba(31,95,107,0)}}
+#phase-label{margin-block:12px;padding:.6em 1em;background:var(--soft,#eef4f5);border:1px solid var(--line);border-radius:10px;font-weight:600;font-size:.98rem}
+#phase-label .en{font-size:.75em;opacity:.8}
+.qfb.good{border-color:var(--ok,#2e7d32);background:var(--ok-soft,#e8f5e9)}
+.qfb.bad{border-color:var(--bad,#c62828);background:var(--bad-soft,#fdecea)}
+.hud .hi b{color:var(--nl)}
+#overlay,#final{margin-block:14px}
+#fExplain{text-align:start;font-size:.95rem}
+#fExplain ul{margin:.3em 0;padding-inline-start:1.4em}
+#fExplain li{margin-block:.35em}
+#fExplain .en{font-size:.85em;opacity:.85}
+</style>
+</head>
+<body>
+<nav class="topnav"><div class="wrap nav-in">
+  <a class="brand" href="index.html">عِلم البيانات <span class="en">Data Science</span></a>
+  <div class="nav-links">
+    <a href="index.html">الرئيسية</a>
+    <a href="exam.html">الاختبار الشامل</a>
+    <a class="active" href="games.html">الألعاب</a>
+  </div>
+</div></nav>
+
+<div class="wrap"><main>
+
+<header class="hero">
+  <h1>🎯 اقتناص الوسيط</h1>
+  <p class="lede">المتوسط مقابل الوسيط <span class="en">Mean vs Median</span></p>
+  <div class="btn-row" style="justify-content:center">
+    <a class="btn" href="games.html">→ عودة إلى الألعاب</a>
+  </div>
+</header>
+
+<div class="tip-box">
+  <h3 class="box-title">📋 كيف تلعب؟</h3>
+  <ul>
+    <li>في كل جولة تحصل على <b>٥ إلى ٧ بالونات</b>، كل بالون يحمل قيمة عددية — وبعض الجولات تتسلل إليها <b>قيمة شاذة <span class="en">Outlier</span></b> (بالون مخطط!) تحاول جذب النتائج بعيدًا.</li>
+    <li><b>المرحلة الأولى:</b> انقر البالون الذي يقف عند <b>الوسيط <span class="en">Median</span></b> — القيمة الوسطى بعد ترتيب كل القيم تصاعديًا.</li>
+    <li><b>المرحلة الثانية:</b> انقر على الخط عند النقطة التي يقع فيها <b>المتوسط الحسابي <span class="en">Mean</span></b> — مجموع القيم مقسومًا على عددها. لاحظ كيف تجذبه القيمة الشاذة بعيدًا عن الوسيط!</li>
+    <li>إجابة صحيحة = <b>+١٠ نقاط</b>، وإجابة خاطئة = <b>-٥ نقاط</b>. سلسلة الصواب المتتالية 🔥 تزيد التحدّي! اللعبة <b>٥ جولات</b>.</li>
+  </ul>
+</div>
+
+<div class="hud">
+  <span class="hi">الجولة <b id="hRound">1/5</b></span>
+  <span class="hi">النقاط <b id="hScore">0</b></span>
+  <span class="hi">سلسلة الصواب <b id="hStreak">0</b> 🔥</span>
+</div>
+
+<div id="game-area">
+  <div id="nline-wrap">
+    <div id="nline"></div>
+    <div id="balloons"></div>
+  </div>
+  <div id="phase-label"></div>
+</div>
+
+<div id="feedback" class="qfb" hidden>
+  <b id="fbTitle"></b>
+  <span id="fbText"></span>
+  <div class="qfoot"><button id="nextBtn" class="btn btn-primary">التالي ←</button></div>
+</div>
+
+<div id="overlay" class="apply-box" style="text-align:center">
+  <h3 class="box-title" style="justify-content:center">هل أنت مستعد؟</h3>
+  <button id="startBtn" class="btn btn-primary" style="font-size:1.05rem">ابدأ اللعب 🎈</button>
+</div>
+
+<div id="final" class="end-card" hidden>
+  <div class="grade" id="fGrade">—</div>
+  <p class="score-line" id="fScore"></p>
+  <div class="tip-box">
+    <h3 class="box-title">متى نستخدم الوسيط ومتى نستخدم المتوسط؟</h3>
+    <div id="fExplain"></div>
+  </div>
+  <div class="btn-row" style="justify-content:center;margin-top:18px">
+    <button id="againBtn" class="btn btn-primary">لعبة جديدة ♻️</button>
+    <a class="btn" href="games.html">صالة الألعاب</a>
+  </div>
+</div>
+
+</main></div>
+<footer><div class="wrap">منهج <span class="en">Data Science</span> · شرح عربي مبسّط مع المصطلحات الإنجليزية · إعداد موثّق للاختبار</div></footer>
+<script>
+/* ===== الحالة والمولّد ===== */
+var $=function(id){return document.getElementById(id)};
+var COLORS=["#1f5f6b","#3d8f9e","#e07a5f","#8e6e95","#5e81ac","#b5838d","#6b9e78"];
+var TOTAL=5,LINE_TOP=215,BL=60,LN=34; /* ارتفاع البالون وتباعد طوابق التكديس */
+var st={score:0,round:0,streak:0,phase:1};
+var R=null;
+function rnd(a,b){return Math.floor(Math.random()*(b-a+1))+a}
+function fmt(v){var r=Math.round(v*10)/10;return r%1?r.toFixed(1):String(r)}
+function best(){try{return +localStorage.getItem("mm_best")||0}catch(e){return 0}}
+function saveBest(v){try{localStorage.setItem("mm_best",v)}catch(e){}}
+/* جولة جديدة: ٥ أو ٧ قيم (عدد فردي كي يكون الوسيط بالونًا حقيقيًا) وبعض الجولات تتسلل إليها قيمة شاذة */
+function genRound(){
+  var n=Math.random()<.5?5:7,base=rnd(20,60),vals=[],i;
+  var offs=[];for(i=-6;i<=6;i++)offs.push(i);
+  offs.sort(function(){return Math.random()-.5});
+  var outVal=null;
+  for(i=0;i<n-1;i++)vals.push(base+offs[i]*3);
+  if(Math.random()<.65){outVal=base+rnd(50,80);vals.push(outVal)}
+  else vals.push(base+offs[n-1]*3);
+  vals.sort(function(a,b){return a-b});
+  var sum=0;for(i=0;i<n;i++)sum+=vals[i];
+  var pad=Math.max((vals[n-1]-vals[0])*.12,2);
+  return {vals:vals,outVal:outVal,med:vals[(n-1)/2],mean:sum/n,
+          mn:vals[0]-pad,mx:vals[n-1]+pad,els:[]};
+}
+function xPct(v){return (v-R.mn)/(R.mx-R.mn)*100}
+function addMarker(v,cls,txt){
+  var row=cls==="med"?18:60,stemH=LINE_TOP-row-20-2,col=cls==="med"?"#2e7d32":"#c0392b";
+  var m=document.createElement("div");
+  m.className="marker "+cls;
+  m.innerHTML='<div class="ml">'+txt+'</div>'
+   +'<div style="position:absolute;top:20px;left:50%;width:2px;height:'+stemH+'px;background:'+col+';opacity:.5"></div>'
+   +'<div class="pin" style="position:absolute;top:'+(20+stemH-7)+'px;left:50%;margin:0;transform:translateX(-50%)"></div>';
+  m.style.top=-(LINE_TOP-row)+"px";m.style.left=xPct(v)+"%";
+  $("nline").appendChild(m);
+}
+function setHUD(){
+  $("hRound").textContent=st.round+"/"+TOTAL;
+  $("hScore").textContent=st.score;
+  $("hStreak").textContent=st.streak;
+}
+function setPhase(){
+  $("phase-label").innerHTML=st.phase===1
+   ?'🎈 <b>المرحلة ١:</b> انقر البالون الواقف عند <b>الوسيط (Median)</b> — القيمة الوسطى بعد ترتيب الأرقام تصاعديًا.'
+   :'📏 <b>المرحلة ٢:</b> الوسيط مثبّت الآن على الخط — انقر نقطة وقوع <b>المتوسط الحسابي (Mean)</b> (مجموع القيم ÷ عددها).';
+}
+function markScore(ok){if(ok){st.score+=10;st.streak++}else{st.score-=5;st.streak=0}setHUD()}
+function renderRound(){
+  R=genRound();st.phase=1;R.els=[];
+  var nl=$("nline"),bl=$("balloons");
+  nl.innerHTML="";bl.innerHTML="";bl.style.pointerEvents="";
+  var step=Math.max(1,Math.round((R.mx-R.mn)/9)),t;
+  for(t=Math.ceil(R.mn/step)*step;t<=R.mx;t+=step){
+    var tk=document.createElement("div");tk.className="tick";tk.style.left=xPct(t)+"%";nl.appendChild(tk);
+    var lb=document.createElement("div");lb.className="tick-lb";lb.style.left=xPct(t)+"%";lb.textContent=t;nl.appendChild(lb);
+  }
+  var lanes=[-99,-99,-99];
+  R.vals.forEach(function(v,i){
+    var x=xPct(v),lane=2,li;
+    for(li=0;li<3;li++){if(x-lanes[li]>=7.5){lane=li;break}}
+    lanes[lane]=x;
+    var b=document.createElement("div");
+    b.className="balloon"+(v===R.outVal?" out":"");
+    b.style.cssText="left:"+x+"%;top:"+(LINE_TOP-BL-lane*LN)+"px;background:"+COLORS[i%COLORS.length];
+    b.innerHTML='<span class="bv"'+(v===R.outVal?' style="color:#7a3540;text-shadow:none"':'')+'>'+v+"</span>";
+    b.onclick=function(ev){ev.stopPropagation();clickBalloon(v,b)};
+    R.els.push(b);bl.appendChild(b);
+  });
+  setPhase();setHUD();
+}
+function clickBalloon(v,el){
+  if(st.phase!==1||!R)return;
+  var ok=v===R.med;
+  markScore(ok);
+  R.els[R.vals.indexOf(R.med)].classList.add("picked");
+  if(!ok){el.style.filter="grayscale(.7)";el.style.opacity=".5"}
+  addMarker(R.med,"med","الوسيط (Median) "+R.med);
+  st.phase=2;setPhase();
+  $("balloons").style.pointerEvents="none";
+}
+/* ===== المرحلة الثانية: انقر عند نقطة المتوسط ===== */
+function nextRound(){st.round++;st.done=false;setHUD();renderRound()}
+function onLineClick(ev){
+  if(st.phase!==2||st.done||!R)return;
+  st.done=true;
+  var r=$("nline").getBoundingClientRect();
+  var pct=Math.max(0,Math.min(100,(ev.clientX-r.left)/r.width*100));
+  var ok=Math.abs(pct-xPct(R.mean))<=3.5;
+  var drop=document.createElement("div");drop.className="drop";drop.style.left=pct+"%";$("nline").appendChild(drop);
+  markScore(ok);
+  addMarker(R.mean,"mean","المتوسط (Mean) "+fmt(R.mean));
+  $("phase-label").innerHTML="✔️ شاهد الفرق: <b style='color:#2e7d32'>الوسيط "+R.med+"</b> مقابل <b style='color:#c0392b'>المتوسط "+fmt(R.mean)+"</b>"+(R.outVal?" — القيمة الشاذة "+R.outVal+" شدّت المتوسط بعيدًا!":"");
+  showFb(ok);
+}
+function showFb(ok){
+  var f=$("feedback");f.hidden=false;f.className="qfb "+(ok?"good":"bad");
+  $("fbTitle").textContent=ok?"✅ إصابة دقيقة!":"❌ بعيد عن المتوسط قليلًا.";
+  $("fbText").innerHTML="القيم مرتبةً: <b dir=\"ltr\">"+R.vals.join(", ")+"</b> — عددها "+R.vals.length+"، الوسيط <b>"+R.med+"</b>، والمتوسط <b>"+fmt(R.mean)+"</b>."+(R.outVal?" القيمة الشاذة <b>"+R.outVal+"</b> (البالون المخطط) جذبت المتوسط نحوها وتركت الوسيط مكانه.":" لا قيمة شاذة هنا، لذلك تقارب الوسيط والمتوسط.");
+  f.scrollIntoView({behavior:"smooth",block:"nearest"});
+}
+function showFinal(){
+  var max=TOTAL*2*10,b=best(),nb=Math.max(b,st.score);
+  if(st.score>b)saveBest(st.score);
+  var pct=Math.max(0,Math.round(st.score/max*100));
+  var g=pct>=85?"🏆 ممتاز":pct>=60?"🎖️ جيد جدًا":pct>=30?"👍 جيد":"💪 حاول مجددًا";
+  $("fGrade").textContent=g+" · "+pct+"٪";
+  $("fScore").textContent="جمعت "+st.score+" نقطة من "+max+" — أفضل نتيجة لك على هذا الجهاز: "+nb+" نقطة.";
+  $("fExplain").innerHTML="<ul>"+
+    "<li><b>الوسيط (Median)</b> مقاوم للقيم الشاذة: زمن تحميل فظيع واحد أو راتب ضخم لا يحرّكه — لهذا يُفضَّل للرواتب والأسعار وأزمنة الاستجابة عند وجود شواذ. <span class='en'>(robust to outliers)</span></li>"+
+    "<li><b>المتوسط (Mean)</b> يستفيد من كل قيمة فيلخّص التوزيع كاملًا — مثالي عندما تكون البيانات متوازنة بلا شواذ. <span class='en'>(uses every value)</span></li>"+
+    "<li>فرق كبير بين الوسيط والمتوسط = علامة على قيم شاذة أو توزيع منحرف؛ افحصها قبل حذفها فقد تكون خطأ إدخال أو اكتشافًا مهمًا.</li>"+
+    "<li>في التقارير الذكية اعرض الاثنين معًا — القارئ المحترف يسأل عنهما دائمًا.</li></ul>";
+  $("game-area").hidden=true;$("phase-label").hidden=true;$("feedback").hidden=true;
+  $("final").hidden=false;
+  window.scrollTo({top:0,behavior:"smooth"});
+}
+function start(){
+  st.score=0;st.round=0;st.streak=0;st.done=false;
+  $("overlay").hidden=true;$("final").hidden=true;$("feedback").hidden=true;
+  $("game-area").hidden=false;$("phase-label").hidden=false;
+  nextRound();
+}
+$("game-area").hidden=true;$("phase-label").hidden=true;
+$("startBtn").onclick=start;
+$("againBtn").onclick=start;
+$("nextBtn").onclick=function(){$("feedback").hidden=true;if(st.round>=TOTAL)showFinal();else nextRound()};
+$("nline-wrap").addEventListener("click",onLineClick);
+</script>
+</body>
+</html>

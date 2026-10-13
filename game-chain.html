@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>لعبة سلسلة البيانات — عِلم البيانات</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@300;400;500;600;700&family=IBM+Plex+Sans:wght@400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/style.css">
+<style>
+.hud{display:flex;gap:8px;flex-wrap:wrap;margin-block:14px}
+.hud .hi{font-size:.85rem;font-weight:700;background:#fff;border:1px solid var(--line);border-radius:999px;padding:.3em 1em;color:var(--muted)}
+.hud .hi b{color:var(--accent-deep)}
+#bank{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;margin-block:12px}
+.tile{background:#fff;border:2px solid var(--line);border-radius:14px;padding:.6em .8em;cursor:pointer;text-align:center;transition:transform .15s,border-color .15s,box-shadow .15s,opacity .3s;font-family:inherit;font-size:1rem}
+.tile:hover{border-color:var(--accent);transform:translateY(-3px);box-shadow:0 6px 14px rgba(31,95,107,.14)}
+.tile .t-ico{font-size:1.5rem;display:block;line-height:1.2}
+.tile .t-ar{font-weight:700;display:block;margin-top:.1em}
+.tile .t-en{display:block;font-size:.72em;opacity:.75;margin-top:.1em}
+.tile.done{opacity:0;pointer-events:none;transform:scale(.55)}
+.tile.shake{animation:shk .4s;border-color:var(--bad);background:var(--bad-soft)}
+@keyframes shk{0%,100%{transform:translateX(0)}20%{transform:translateX(-8px)}40%{transform:translateX(8px)}60%{transform:translateX(-5px)}80%{transform:translateX(5px)}}
+#slots{display:grid;gap:10px;margin-block:14px}
+.slot{display:flex;align-items:center;gap:10px;background:var(--soft);border:2px dashed var(--line);border-radius:12px;padding:.55em .8em;min-height:3em;transition:border-color .2s}
+.slot.nx{border-color:var(--accent)}
+.slot .s-n{font-weight:800;color:var(--accent-deep);background:#fff;border:1px solid var(--line);border-radius:50%;width:1.9em;height:1.9em;display:flex;align-items:center;justify-content:center;flex:none}
+.slot .s-ico{font-size:1.5rem}
+.slot .s-t{flex:1}
+.slot .s-t b{display:block;font-size:1.02rem}
+.slot .s-t small{display:block;color:var(--muted);font-size:.85rem}
+.slot.filled{border-style:solid;border-color:var(--ok);background:var(--ok-soft);animation:pop .35s}
+.slot.filled .s-n{color:var(--ok);border-color:var(--ok)}
+@keyframes pop{0%{transform:scale(.92);opacity:.3}100%{transform:scale(1);opacity:1}}
+.stars{font-size:1.2rem;letter-spacing:3px;color:var(--warn)}
+.stars .off{opacity:.22}
+#why h4{margin:0 0 .3em;color:var(--accent-deep)}
+#why p{margin:.2em 0}
+</style>
+</head>
+<body>
+<nav class="topnav"><div class="wrap nav-in">
+  <a class="brand" href="index.html">عِلم البيانات <span class="en">Data Science</span></a>
+  <div class="nav-links">
+    <a href="index.html">الرئيسية</a>
+    <a href="exam.html">الاختبار الشامل</a>
+    <a class="active" href="games.html">الألعاب</a>
+  </div>
+</div></nav>
+
+<div class="wrap"><main>
+
+<header class="hero">
+  <h1>🔗 سلسلة البيانات</h1>
+  <p class="lede">في كل مشروع بيانات، المراحل تشبه خط الإنتاج في مصنع: كل محطة تستلم من السابقة وتجهّز للتالية. أمامك ثلاث جولات، في كل واحدة بطاقات مبعثرة — اضغطها بالترتيب الصحيح لتبني سلسلة الإمداد <span class="en">Data Supply Chain</span> من المصدر إلى القرار. كل ضغطة خاطئة تهزّ البطاقة وتكلفك خطأ <span class="en">Strike</span>.</p>
+  <div class="btn-row" style="justify-content:center">
+    <a class="btn" href="games.html">→ عودة إلى صالة الألعاب</a>
+  </div>
+</header>
+
+<div class="tip-box">
+  <h3 class="box-title">📋 قواعد المصنع</h3>
+  <ul>
+    <li>ثلاث جولات بثلاث سلاسل مختلفة: سلسلة مشروع الكافتيريا (٥ مراحل)، دورة البيانات <span class="en">Data Cycle</span> (٥ مراحل)، والسلسلة الكبرى (٦ حلقات).</li>
+    <li>اضغط البطاقة التي تأتي تالية في السلسلة فتنتقل إلى مكانها — البطاقة الخاطئة تهتزّ ويسجَّل خطأ <span class="en">Strike</span>.</li>
+    <li>الإجابات الصحيحة المتتالية ترفع منحك ٥ نقاط إضافية، وثلاثة أخطاء في الجولة توقف خط الإنتاج مبكرًا.</li>
+    <li>في نهاية كل جولة يُفتح لوح «لماذا هذا الترتيب؟» ليشرح لك منطق السلسلة قبل الانتقال.</li>
+  </ul>
+</div>
+
+<div id="intro" class="apply-box" style="text-align:center">
+  <h3 class="box-title" style="justify-content:center">خط الإنتاج بانتظارك</h3>
+  <p>أفضل نتيجة مسجلة على هذا الجهاز: <b id="introBest">—</b></p>
+  <button id="startBtn" class="btn btn-primary" style="font-size:1.05rem">شغّل خط الإنتاج 🏭</button>
+</div>
+
+<div id="stage" hidden>
+  <div class="hud">
+    <span class="hi">الجولة <b id="hRound">1/3</b></span>
+    <span class="hi">النقاط <b id="hScore">0</b></span>
+    <span class="hi">سلسلة الصواب <b id="hStreak">0</b> 🔥</span>
+    <span class="hi">الأخطاء <b id="hStrike">0</b>/3</span>
+    <span class="hi">الأفضل <b id="hBest">—</b></span>
+  </div>
+  <div class="apply-box">
+    <span class="case-tag" id="rTag"></span>
+    <h3 id="rTitle" style="margin:.2em 0"></h3>
+    <p id="rScene" style="color:var(--muted)"></p>
+    <p style="margin:.6em 0 .2em;font-weight:700">اضغط البطاقة التي تأتي تالية في السلسلة 👇</p>
+    <div id="bank"></div>
+    <div id="slots"></div>
+    <div id="why" class="tip-box" hidden></div>
+    <div style="text-align:center;margin-top:14px">
+      <button id="nextBtn" class="btn btn-primary" hidden>الجولة التالية ←</button>
+    </div>
+  </div>
+</div>
+
+<div id="fin" class="apply-box" hidden>
+  <h3 class="box-title" style="justify-content:center">📦 تقرير نهاية الوردية</h3>
+  <div id="finBody"></div>
+  <button id="againBtn" class="btn">وردية جديدة 🔁</button>
+</div>
+
+</main></div>
+<script>
+"use strict";
+var BESTKEY="ds-chain-best";
+var ROUNDS=[
+{tag:"جولة 1 · سلسلة مشروع الكافتيريا",
+ title:"من الطابور إلى قرار مديرة المدرسة",
+ scene:"فريق «طابور الغداء» يقيس انتظار 40 طالبًا على مدى 8 أيام. رتّب مراحل سلسلة الإمداد: من مكان تولّد البيانات حتى لحظة اتخاذ القرار.",
+ why:"السلسلة تسير في اتجاه واحد لأن كل مرحلة تصنع مدخلات التي بعدها: نجمع التوقيتات من المصدر، نخزّنها بأمان كي لا يضيع صف، ننظّف الناقص والملوث، نحلّل النظيف فحسب، ثم يُتخذ القرار على قاعدة الإجابة. اقلب الترتيب وسترى كارثة: قرار بلا تحليل، وتحليل لبيانات وسخة، وتنظيف لبيانات لم تُجمع أصلًا.",
+ st:[
+  {ar:"جمع البيانات",en:"Collection",ic:"📥",d:"ساعة في يد كل طابور: سجّل وقت الدخول"},
+  {ar:"التخزين",en:"Storage",ic:"🗄️",d:"جدول موحّد محفوظ لا يضيع منه صف"},
+  {ar:"التنظيف",en:"Cleaning",ic:"🧼",d:"حذف التوقيتات الناقصة وتوحيد الوحدات"},
+  {ar:"التحليل",en:"Analysis",ic:"🔍",d:"مقارنة الانتظار هذا الفصل بالفصل السابق"},
+  {ar:"القرار",en:"Decision",ic:"🎯",d:"مديرة المدرسة تفتح خط تقديم ثانيًا"}]},
+{tag:"جولة 2 · دورة البيانات Data Cycle",
+ title:"خمس مراحل بترتيب واحد لا يتغيّر",
+ scene:"هذه هي دورة التحقيق التي تعلّمتها في الحصة الأولى — نفسها في كل مشروع بيانات مهما كان صغيرًا. رتّبها.",
+ why:"الدورة تبدأ بسؤال لا بأداة: Ask يحدد ماذا نحتاج أن نجمع، وCollect يجلب ما يحتاجه السؤال فعلًا، وPrepare يجعل الخام قابلًا للتحليل، وAnalyse يستخرج الإجابة، وCommunicate يسلّم الادعاء مع حدوده. من يبني لوحة معلومات Dashboard ثم يبحث عن سؤال لها، يكون قد بدأ من المنتصف — وهذا فخ «الأداة أولًا» بعينه.",
+ st:[
+  {ar:"اسأل",en:"Ask",ic:"🤔",d:"هل صارت طوابير الغداء أطول هذا الفصل؟"},
+  {ar:"اجمع",en:"Collect",ic:"📥",d:"قياس انتظار 40 طالبًا على 8 أيام"},
+  {ar:"هيّئ",en:"Prepare",ic:"🧼",d:"حذف الناقص وتوحيد الصيغ"},
+  {ar:"حلّل",en:"Analyse",ic:"🔍",d:"مقارنة هذا الفصل بالفصل السابق"},
+  {ar:"اعرض",en:"Communicate",ic:"📣",d:"«ارتفع الانتظار ثلاث دقائق» مع الحدود"}]},
+{tag:"جولة 3 · السلسلة الكبرى — ست حلقات",
+ title:"المصنع الكامل: من السؤال إلى القرار",
+ scene:"الآن سلسلة كاملة بكل المحطات: تبدأ بسؤال وتنتهي بقرار يغيّر الواقع — ثم يثير أسئلة جديدة. رتّب الحلقات الست.",
+ why:"السلسلة الكبرى تدمج كل ما سبق: السؤال Ask يوجّه الجمع Collect، والتخزين Storage يحفظ الخام بأمان، والتنظيف Cleaning يهيّئه، والتحليل Analysis يستخرج الإجابة، والعرض Communicate يقنع صاحب القرار، والقرار Decision يغيّر الواقع — ثم يولّد أسئلة متابعة فتبدأ سلسلة جديدة. لهذا تُسمى دورة حياة: كل نهاية هي بداية.",
+ st:[
+  {ar:"السؤال",en:"Ask",ic:"🤔",d:"تحديد المجتمع والمتغيّرات قبل أي رقم"},
+  {ar:"الجمع",en:"Collect",ic:"📥",d:"قياسات خام من الواقع"},
+  {ar:"التخزين",en:"Storage",ic:"🗄️",d:"أرشيف موثوق يمكن الرجوع إليه"},
+  {ar:"التنظيف",en:"Cleaning",ic:"🧼",d:"تكرارات وناقص وقيم شاذة — خارج!"},
+  {ar:"التحليل",en:"Analysis",ic:"🔍",d:"مقارنات ونسب وأنماط"},
+  {ar:"القرار",en:"Decision",ic:"🎯",d:"إجراء يغيّر الواقع ويثير سؤالًا جديدًا"}]}
+];
+var st={r:0,pos:0,score:0,streak:0,strikes:0,stars:[0,0,0],done:false};
+function $(id){return document.getElementById(id)}
+function best(){return +(localStorage.getItem(BESTKEY)||0)}
+function stars(n){var s="";for(var i=1;i<=3;i++)s+=i<=n?"★":"<span class='off'>★</span>";return "<span class='stars'>"+s+"</span>"}
+function hud(){$("hRound").textContent=(st.r+1)+"/3";$("hScore").textContent=st.score;$("hStreak").textContent=st.streak;$("hStrike").textContent=st.strikes;$("hBest").textContent=best()||"—"}
+function shuffle(a){var b=a.slice(),i,j,t;for(i=b.length-1;i>0;i--){j=Math.floor(Math.random()*(i+1));t=b[i];b[i]=b[j];b[j]=t}return b}
+function startGame(){st={r:0,pos:0,score:0,streak:0,strikes:0,stars:[0,0,0],done:false};$("intro").hidden=true;$("fin").hidden=true;$("stage").hidden=false;hud();renderRound()}
+function renderRound(){var R=ROUNDS[st.r];st.pos=0;st.strikes=0;st.streak=0;st.done=false;
+ $("rTag").textContent=R.tag;$("rTitle").textContent=R.title;$("rScene").textContent=R.scene;
+ $("why").hidden=true;$("nextBtn").hidden=true;hud();
+ var bank=$("bank");bank.innerHTML="";
+ shuffle(R.st.map(function(_,i){return i})).forEach(function(i){
+  var s=R.st[i],d=document.createElement("button");
+  d.type="button";d.className="tile";
+  d.innerHTML='<span class="t-ico">'+s.ic+'</span><span class="t-ar">'+s.ar+'</span><span class="t-en en">'+s.en+'</span>';
+  d.onclick=function(){pick(i,d)};bank.appendChild(d)});
+ var slots=$("slots");slots.innerHTML="";
+ R.st.forEach(function(_,i){var d=document.createElement("div");
+  d.id="slot"+i;d.className="slot"+(i===0?" nx":"");
+  d.innerHTML='<span class="s-n">'+(i+1)+'</span><span class="s-t" id="sT'+i+'"></span>';slots.appendChild(d)})}
+
+function pick(i,el){if(st.done)return;var R=ROUNDS[st.r];
+ if(i===st.pos){
+  st.score+=10+5*Math.min(st.streak,3);st.streak++;st.pos++;
+  el.classList.add("done");
+  var s=R.st[i],t=$("sT"+i);
+  t.innerHTML='<span class="s-ico">'+s.ic+'</span><b>'+s.ar+' <span class="en">'+s.en+'</span></b><small>'+s.d+'</small>';
+  t.parentNode.classList.add("filled");
+  if(st.pos<R.st.length){$("slot"+st.pos).classList.add("nx")}
+  hud();
+  if(st.pos===R.st.length){endRound(false)}
+ }else{
+  el.classList.remove("shake");void el.offsetWidth;el.classList.add("shake");
+  st.strikes++;st.streak=0;hud();
+  if(st.strikes>=3){endRound(true)}
+ }}
+function endRound(fail){st.done=true;var R=ROUNDS[st.r];
+ var earned=fail?0:(st.strikes===0?3:st.strikes===1?2:1);
+ st.stars[st.r]=earned;st.score+=earned*10;hud();
+ var head=fail?"توقّف خط الإنتاج بعد ثلاثة أخطاء — تأمّل السلسلة الصحيحة ثم واصل:":"🎉 اكتملت السلسلة! وهذا منطق ترتيبها:";
+ $("why").innerHTML='<h4>💡 لماذا هذا الترتيب؟</h4><p>'+head+'</p><p>'+R.why+'</p><p>نجوم الجولة: '+stars(earned)+'</p>';
+ $("why").hidden=false;
+ $("nextBtn").hidden=false;
+ $("nextBtn").textContent=st.r<2?"الجولة التالية ←":"التقرير النهائي ←";
+ window.scrollTo({top:$("why").offsetTop-120,behavior:"smooth"});}
+function nextRound(){if(st.r<2){st.r++;renderRound()}else{fin()}}
+function fin(){$("stage").hidden=true;$("fin").hidden=false;
+ var tot=st.stars[0]+st.stars[1]+st.stars[2];
+ var isNew=st.score>best();if(isNew)localStorage.setItem(BESTKEY,st.score);
+ var msg=tot>=8?"مهندس سلاسل محترف — الخط كله بلا أعطال! 🏆":tot>=5?"خط إنتاج منظم، والترتيب صار عندك بديهيًا 👍":"السلسلة تحتاج صيانة أخرى — أعد الوردية وركّز على لوح «لماذا؟» 🔧";
+ $("finBody").innerHTML='<p style="font-size:1.2rem;font-weight:700">'+msg+'</p>'+
+  '<p>الكافتيريا: '+stars(st.stars[0])+' &nbsp;·&nbsp; دورة البيانات: '+stars(st.stars[1])+' &nbsp;·&nbsp; السلسلة الكبرى: '+stars(st.stars[2])+'</p>'+
+  '<p>النتيجة النهائية: <b style="font-size:1.4rem;color:var(--accent-deep)">'+st.score+'</b>'+(isNew?" — رقم قياسي جديد! 🎉":"")+'</p>';}
+$("startBtn").onclick=startGame;
+$("againBtn").onclick=startGame;
+$("nextBtn").onclick=nextRound;
+$("introBest").textContent=best()||"—";
+</script>
+</body>
+</html>

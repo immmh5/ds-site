@@ -3,65 +3,172 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Data Science Study Hub · مركز مراجعة علم البيانات</title>
-<meta name="description" content="6 دروس مكثّفة في علم البيانات بأسلوب مبسّط: شرح كأنك تسمعه أول مرة، رسومات SVG، محاكاة تفاعلية، ألعاب ثلاثية الأبعاد، وأكثر من 190 سؤال اختبار.">
+<title>عِلم البيانات — منهج الحصص الست كاملًا</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@300;400;500;600;700&family=IBM+Plex+Sans:wght@400;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="assets/style.css">
 </head>
 <body>
-<div id="nav"></div>
-
-<div class="wrap hero">
-  <span class="badge">6 دروس · أكثر من 190 سؤال · ألعاب ومحاكاة</span>
-  <h1>علم البيانات <span class="small muted" style="font-family:var(--font-en)">Data Science, explained simply</span></h1>
-  <p class="sub">شرح كأنك تسمعه أول مرة — ثم المصطلحات بالإنجليزي، التطبيقات على الواقع، ألعاب ثلاثية الأبعاد، واختبار بعد كل درس. ابدأ من الدرس الأول وامشِ بالترتيب.</p>
-  <div class="ctrl center" style="justify-content:center;margin-top:10px">
-    <a class="btn" href="lessons/c1.html">ابدأ الدرس الأول ←</a>
-    <a class="btn ghost" href="quiz.html">الاختبار الشامل 🧠</a>
-    <button class="btn ghost" id="resetP">تصفير التقدّم</button>
+<nav class="topnav"><div class="wrap nav-in">
+  <a class="brand" href="index.html">عِلم البيانات <span class="en">Data Science</span></a>
+  <div class="nav-links">
+    <a class="active" href="index.html">الرئيسية</a>
+    <a href="exam.html">الاختبار الشامل</a>
+    <a href="games.html">الألعاب</a>
   </div>
-</div>
+</div></nav>
 
-<div class="wrap" id="cards"></div>
+<div class="wrap"><main>
 
-<footer><div class="wrap center">Data Science Study Hub · ds.qam3.qd.je</div></footer>
+<header class="hero">
+  <h1>علوم البيانات، مشروحة أخيرًا بلغة تفهمها</h1>
+  <p class="lede">ست حصص كاملة من منهج <span class="en">Data Science</span>: شرح عربي عميق ومبسّط، المصطلح الإنجليزي حاضر دائمًا لأن الاختبار سيستخدمه، مصائد الاختبار مكشوفة قبل أن تقع فيها، وألعاب حقيقية تجرب فيها المفاهيم بيدك.</p>
+  <div class="btn-row" style="justify-content:center">
+    <a class="btn btn-primary" href="class1.html">ابدأ من الحصة 1 ←</a>
+    <a class="btn" href="exam.html">الاختبار الشامل</a>
+    <a class="btn btn-ghost" href="games.html">صالة الألعاب 🎮</a>
+  </div>
+  <div class="chips">
+    <span class="chip">📚 6 حصص كاملة</span>
+    <span class="chip">🧪 100+ سؤال اختبار</span>
+    <span class="chip">🎮 6 ألعاب تفاعلية بينها لعبة 3D</span>
+    <span class="chip">🇬🇧 المصطلحات الإنجليزية جاهزة للاختبار</span>
+  </div>
+</header>
 
-<script src="assets/core.js"></script>
-<script>
-  DS.nav('home');
-  const host = document.getElementById('cards');
-  const units = {};
-  DS.LESSONS.forEach(l => {
-    const u = l.unit.split('·')[0].trim();
-    (units[u] = units[u] || []).push(l);
-  });
-  host.innerHTML = Object.keys(units).map(u => `
-    <h2 class="unit-head">${DS.esc(u)}</h2>
-    <div class="grid g2">
-      ${units[u].map(l => {
-        const best = DS.P.best(l.id);
-        const done = DS.P.isDone(l.id);
-        return `<a class="mini lesson-card" href="lessons/${l.id}.html">
-          <div class="lc-top">
-            <span class="lc-n">${l.n}</span>
-            <span class="pill"><b>${DS.esc(l.en)}</b></span>
-            ${done ? '<span class="pill done">✓ مكتمل</span>' : ''}
-          </div>
-          <h3>${DS.esc(l.t)}</h3>
-          <div class="ar small muted">${DS.esc(l.en)}</div>
-          <div class="lc-foot">
-            <span class="chip sm"><div class="v">${best ? best.p + '/' + best.t : '—'}</div><div class="k">أفضل نتيجة</div></span>
-            <span class="btn sm">افتح الدرس ←</span>
-          </div>
-        </a>`;
-      }).join('')}
-    </div>`).join('');
-  document.getElementById('resetP').onclick = () => {
-    DS.P.reset(); location.reload();
-  };
-</script>
+<section>
+  <h2>🧭 كيف تدرس بهذا الموقع؟</h2>
+  <div class="grid-cards">
+    <div class="card">
+      <div class="card-num">1</div>
+      <h3>اقرأ الشرح</h3>
+      <p>كل حصة مقسومة إلى ثلاثة أهداف واضحة. الشرح عميق لكنه بلغة بسيطة، وفيه صندوق «افهمها كأنك طفل» و«حيل الحفظ» لكل هدف.</p>
+    </div>
+    <div class="card">
+      <div class="card-num">2</div>
+      <h3>العب قبل أن تحفظ</h3>
+      <p>ست ألعاب تفاعلية تحوّل المفاهيم إلى تجربة: رتّب دورة البيانات، اجلس في لجنة الأخلاقيات، واسحب عينات في مختبر المعاينة.</p>
+    </div>
+    <div class="card">
+      <div class="card-num">3</div>
+      <h3>اختبر نفسك في كل حصة</h3>
+      <p>15 سؤالًا صعبًا لكل حصة بمصائد شبه صحيحة تشبه أسئلة الاختبار الحقيقية، مع شرح لكل إجابة يميّز الصحيح من المشابه.</p>
+    </div>
+    <div class="card">
+      <div class="card-num">4</div>
+      <h3>الاختبار الشامل آخرًا</h3>
+      <p>24 سؤالًا تخلط الحصص كلها معًا — أصعب مما ستواجهه، حتى يكون الاختبار الحقيقي أسهل مما تدربت عليه.</p>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="unit-band">
+    <h2>UNIT 1 · الوحدة الأولى — أساسيات التحقيق في البيانات</h2>
+    <span class="note">كيف يبدأ عمل عالم البيانات: سؤال واضح، بيانات موثوقة، وضمير مستيقظ.</span>
+  </div>
+  <div class="grid-cards">
+    <div class="card">
+      <div class="card-num">1</div>
+      <h3>أسئلة علوم البيانات ودورة البيانات</h3>
+      <p><span class="en">Data Cycle</span> الخمس مراحل، وحدة التحليل <span class="en">Unit of Analysis</span>، المتغيرات الأربعة، ولماذا «الأداة أولًا» خطأ.</p>
+      <div class="card-links">
+        <a class="mini dark" href="class1.html">افتح الحصة</a>
+        <a class="mini light" href="class1.html#quiz-sec">اختبار الحصة</a>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-num">2</div>
+      <h3>مصدر البيانات وملاءمة الغرض</h3>
+      <p><span class="en">Provenance</span> والبصمة <span class="en">Checksum</span>، القاموس <span class="en">Data Dictionary</span>، اختبارات الملاءمة الستة، وقصة وول مارت والإعصار.</p>
+      <div class="card-links">
+        <a class="mini dark" href="class2.html">افتح الحصة</a>
+        <a class="mini light" href="class2.html#quiz-sec">اختبار الحصة</a>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-num">3</div>
+      <h3>الأخلاقيات والخصوصية واعتماد التحقيقات</h3>
+      <p><span class="en">Consent</span> و<span class="en">Minimization</span>، التحيزات الأربعة، الضرر، وقرار اللجنة: <span class="en">Approve / Revise / Reject</span>.</p>
+      <div class="card-links">
+        <a class="mini dark" href="class3.html">افتح الحصة</a>
+        <a class="mini light" href="class3.html#quiz-sec">اختبار الحصة</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="unit-band">
+    <h2>UNIT 2 · الوحدة الثانية — من المجتمع إلى الاستدلال</h2>
+    <span class="note">من تسأل؟ ومن تجيب؟ وكيف تقفز من عينة صغيرة إلى حديث عن الجميع؟</span>
+  </div>
+  <div class="grid-cards">
+    <div class="card">
+      <div class="card-num">4</div>
+      <h3>المجتمع وإطار المعاينة وتصميم العينة</h3>
+      <p><span class="en">Population</span> مقابل <span class="en">Sampling Frame</span>، التصميمات الاحتمالية الأربعة وغير الاحتمالية، وتحيز التغطية وقصة استطلاع 1936.</p>
+      <div class="card-links">
+        <a class="mini dark" href="class4.html">افتح الحصة</a>
+        <a class="mini light" href="class4.html#quiz-sec">اختبار الحصة</a>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-num">5</div>
+      <h3>التوزيع والوسط والانتشار</h3>
+      <p><span class="en">Mean</span> و<span class="en">Median</span> والانحراف <span class="en">SD</span> وقاعدة <span class="en">1.5×IQR</span> للشواذ، ولماذا المليونير يجرّ الوسط ولا يزحزح الوسيط.</p>
+      <div class="card-links">
+        <a class="mini dark" href="class5.html">افتح الحصة</a>
+        <a class="mini light" href="class5.html#quiz-sec">اختبار الحصة</a>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-num">6</div>
+      <h3>محاكاة توزيعات المعاينة</h3>
+      <p><span class="en">Sampling Distribution</span>، النظرية المركزية <span class="en">CLT</span>، الفرق بين العشوائي <span class="en">Variability</span> والمنهجي <span class="en">Bias</span>، ومن الوصف إلى الاستدلال.</p>
+      <div class="card-links">
+        <a class="mini dark" href="class6.html">افتح الحصة</a>
+        <a class="mini light" href="class6.html#quiz-sec">اختبار الحصة</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <h2>🎮 تدرّب بيدك في صالة الألعاب</h2>
+  <div class="grid-cards">
+    <div class="card">
+      <h3>صياد المصطلحات 3D</h3>
+      <p>مكعبات ثلاثية الأبعاد تحمل المصطلحات الإنجليزية — أمسك بالصحيح قبل نفاد الوقت.</p>
+      <div class="card-links"><a class="mini dark" href="game-hunter3d.html">العب</a></div>
+    </div>
+    <div class="card">
+      <h3>مختبر المعاينة</h3>
+      <p>اسحب عينات بكل التصميمات وشاهد كيف يتقلص التباين مع كبر العينة.</p>
+      <div class="card-links"><a class="mini dark" href="game-sampling.html">العب</a></div>
+    </div>
+    <div class="card">
+      <h3>لجنة الأخلاقيات</h3>
+      <p>اجلس عضوًا في اللجنة ووافق أو عدّل أو ارفض قبل أن ينفد الوقت.</p>
+      <div class="card-links"><a class="mini dark" href="game-ethics.html">العب</a></div>
+    </div>
+    <div class="card">
+      <h3>والمزيد…</h3>
+      <p>باني سلسلة المصدر، سبق دورة البيانات، وميزان الوسط والوسيط.</p>
+      <div class="card-links"><a class="mini light" href="games.html">كل الألعاب</a></div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="unit-band" style="justify-content:center;text-align:center">
+    <h2>هل أنت جاهز للاختبار الحقيقي؟</h2>
+    <a class="btn btn-primary" href="exam.html">ابدأ الاختبار الشامل — 24 سؤالًا من كل الحصص ←</a>
+  </div>
+</section>
+
+</main></div>
+
+<footer><div class="wrap">منهج <span class="en">Data Science</span> · شرح عربي مبسّط مع المصطلحات الإنجليزية · إعداد موثّق للاختبار</div></footer>
 </body>
-<!--touch-->
 </html>
