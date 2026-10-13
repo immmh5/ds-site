@@ -53,6 +53,55 @@
   <p>خذ مثال الأجور من المصدر: أراد فريق تقدير متوسط أجر 10,000 مهندس برمجيات؛ فحصت الموارد البشرية الرواتب كلها فوجدت الوسط 85,000$ والانحراف المعياري <span class="en">Standard Deviation</span> 9,000$. ثم سُحبت عينة عشوائية من 50 فجاء وسطها 86,200$، ثم عينة أخرى من الحجم نفسه فجاء وسطها 83,900$. هل أخطأ أحد؟ لا أحد: التذبذب المتوقع بين العينات — الخطأ المعياري <span class="en">Standard Error</span> — هو 9,000 ÷ جذر 50 ≈ 1,273$، وكلتا الفرقتين عن 85,000$ أصغر من هذا المقدار. هذا هو توزيع المعاينة عمليًا: أوساط العينات تتذبذب حول الحقيقة بمقدار يمكن حسابه قبل سحب أي عينة.</p>
   <p>والمثال الثاني بنفس القوة: سأل استبيانٌ عينةً من 30 طالبًا فأجاب 72% منهم بـ«نعم». فهل تعني النتيجة أن 72% من الصف كله سيقول نعم؟ لا؛ إنها نسبة عينة واحدة فقط، ونسبة المجتمع <span class="en">Population Parameter</span> قد تكون أعلى أو أدنى. العينة تخبرك عن نفسها بيقين، وعن المجتمع بلا يقين، والطريق الصادق الوحيد لعبور الفجوة بينهما هو أن تعترف بعدم اليقين <span class="en">Uncertainty</span> ثم تقيسه — وهذا بالضبط ما سيمكّنك منه توزيع المعاينة.</p>
   <p>وينتهي البناء إلى نمط يمكن التنبؤ به: مركز الكومة يقترب من قيمة المجتمع، وانتشارها ينكمش كلما كبر حجم العينة <span class="en">Sample Size</span>. احفظها ثلاث حقائق تقيك في أي سؤال: أوساط العينات تتزاحم حول الحقيقة مع التكرار؛ العينة الأكبر ترى تذبذبًا أقل من الأصغر؛ وكل هذا «الجمال» مشروط بأن يكون السحب عشوائيًا <span class="en">By Chance</span> من إطار صادق — عنصر واحد مفقود من الشرط فتهدم القصة كلها.</p>
+  <figure class="fig">
+    <svg viewBox="0 0 720 260" role="img" aria-label="سحب عينات متكررة من المجتمع يبني توزيع المعاينة لأوساط العينات" xmlns="http://www.w3.org/2000/svg">
+      <defs><marker id="ar6" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#1f5f6b"/></marker></defs>
+      <!-- population box -->
+      <rect x="20" y="40" width="180" height="120" rx="10" fill="#eef3f3" stroke="#1f5f6b" stroke-width="2"/>
+      <text x="110" y="66" text-anchor="middle" font-size="12.5" font-weight="700" fill="#174b55">المجتمع</text>
+      <text x="110" y="82" text-anchor="middle" font-size="10" fill="#6b7076">Population (10,000)</text>
+      <g fill="#1f5f6b">
+        <circle cx="55" cy="110" r="5"/><circle cx="85" cy="110" r="5"/><circle cx="115" cy="110" r="5"/>
+        <circle cx="145" cy="110" r="5"/><circle cx="175" cy="110" r="5"/>
+        <circle cx="70" cy="135" r="5"/><circle cx="100" cy="135" r="5"/><circle cx="130" cy="135" r="5"/><circle cx="160" cy="135" r="5"/>
+      </g>
+      <!-- samples -->
+      <rect x="230" y="24" width="180" height="44" rx="8" fill="#f9f4e2" stroke="#8a6d1a" stroke-width="1.5"/>
+      <text x="320" y="42" text-anchor="middle" font-size="11" font-weight="700" fill="#8a6d1a">عينة 1 (n=50)</text>
+      <text x="320" y="59" text-anchor="middle" font-size="10.5" fill="#23262b">وسطها 86,200$</text>
+      <rect x="230" y="78" width="180" height="44" rx="8" fill="#f9f4e2" stroke="#8a6d1a" stroke-width="1.5"/>
+      <text x="320" y="96" text-anchor="middle" font-size="11" font-weight="700" fill="#8a6d1a">عينة 2 (n=50)</text>
+      <text x="320" y="113" text-anchor="middle" font-size="10.5" fill="#23262b">وسطها 83,900$</text>
+      <rect x="230" y="132" width="180" height="44" rx="8" fill="#f9f4e2" stroke="#8a6d1a" stroke-width="1.5"/>
+      <text x="320" y="150" text-anchor="middle" font-size="11" font-weight="700" fill="#8a6d1a">عينة 3 ... 1000</text>
+      <text x="320" y="167" text-anchor="middle" font-size="10.5" fill="#23262b">سجّل وسط كل عينة</text>
+      <path d="M 200 70 H 226" stroke="#1f5f6b" stroke-width="2.5" marker-end="url(#ar6)"/>
+      <path d="M 200 100 H 226" stroke="#1f5f6b" stroke-width="2.5" marker-end="url(#ar6)"/>
+      <path d="M 200 154 H 226" stroke="#1f5f6b" stroke-width="2.5" marker-end="url(#ar6)"/>
+      <!-- sampling distribution -->
+      <rect x="440" y="30" width="260" height="130" rx="10" fill="#fff" stroke="#1e7a3c" stroke-width="2"/>
+      <text x="570" y="54" text-anchor="middle" font-size="12" font-weight="700" fill="#1e7a3c">توزيع المعاينة</text>
+      <text x="570" y="69" text-anchor="middle" font-size="10" fill="#6b7076">Sampling Distribution</text>
+      <g fill="#e9f4ec" stroke="#1e7a3c" stroke-width="1.5">
+        <rect x="462" y="116" width="26" height="18"/>
+        <rect x="492" y="100" width="26" height="34"/>
+        <rect x="522" y="88"  width="26" height="46"/>
+        <rect x="552" y="84"  width="26" height="50"/>
+        <rect x="582" y="92"  width="26" height="42"/>
+        <rect x="612" y="104" width="26" height="30"/>
+        <rect x="642" y="120" width="26" height="14"/>
+      </g>
+      <line x1="570" y1="80" x2="570" y2="140" stroke="#23262b" stroke-width="2.5" stroke-dasharray="5,4"/>
+      <text x="570" y="152" text-anchor="middle" font-size="10" fill="#23262b">مركزها = الحقيقة 85,000$</text>
+      <path d="M 412 100 H 436" stroke="#1e7a3c" stroke-width="2.5" marker-end="url(#ar6)"/>
+      <!-- bottom note -->
+      <rect x="20" y="196" width="680" height="48" rx="8" fill="#f9eceb" stroke="#b0392e"/>
+      <text x="360" y="216" text-anchor="middle" font-size="11.5" fill="#23262b">الخطأ المعياري <tspan font-weight="700" fill="#b0392e">Standard Error</tspan> = 9,000 ÷ جذر 50 ≈ 1,273$</text>
+      <text x="360" y="234" text-anchor="middle" font-size="11" fill="#6b7076">التذبذب بين العينات يُحسب <tspan font-weight="700">قبل</tspan> سحب أي عينة — وهو ما يجعل 83,900 و86,200 طبيعيين</text>
+    </svg>
+    <figcaption><b>توزيع المعاينة <span class="en">Sampling Distribution</span>:</b> ليس توزيع بيانات — بل كومة أوساط العينات. الانتشار ينكمش كلما كبر <span class="en">n</span>.</figcaption>
+  </figure>
+
 
   <div class="notice"><strong>⚠️ مصيدة اختبار:</strong> «توزيع المعاينة» ليس مدرج بيانات عينتك. مدرجك توزيع بيانات <span class="en">Data Distribution</span>؛ أما توزيع المعاينة فتوزيع الإحصائية على العينات الممكنة. حين يذكر السؤال «توزيع المعاينة للوسط» فهو لا يسأل عن بياناتك إطلاقًا — يسأل: ماذا لو كررنا السحب؟</div>
   <div class="notice"><strong>⚠️ مصيدة اختبار:</strong> عينتان من المجتمع نفسه تعطيان وسطين مختلفين — فلا تقلق. الفرق بين 86,200$ و83,900$ ليس خطأ في واحدة منهما ولا دليل تحيّز؛ هو التباين العشوائي <span class="en">Random Variability</span> نفسه الذي جئنا نقيسه. اقبل التذبذب كخلفية طبيعية قبل أن تحكم على أي نتيجة.</div>

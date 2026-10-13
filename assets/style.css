@@ -391,6 +391,13 @@ footer .en{font-size:.8em}
   .classno{width:52px;height:52px;font-size:1.35rem;border-radius:14px}
 }
 
+/* ---------- SVG figures ---------- */
+figure.fig{margin:1.6em 0;background:#fff;border:1px solid var(--line);border-radius:var(--radius);padding:14px 14px 8px}
+figure.fig svg{display:block;width:100%;height:auto;margin:0 auto}
+figure.fig figcaption{font-size:.9rem;color:var(--muted);text-align:center;padding:.5em .2em .2em;line-height:1.6}
+figure.fig figcaption b{color:var(--ink)}
+figure.fig .ftxt{font:600 12px/1.2 'IBM Plex Sans Arabic','Segoe UI',sans-serif}
+
 @media print{
   .topnav,.lesson-nav,.map,.btn{display:none!important}
   body{background:#fff}
