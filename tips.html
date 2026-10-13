@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>نصايح الاختبار · Data Science Study Hub</title>
+<meta name="description" content="إشارات الاختبار من كل الدروس: الكلمة المفتاحية ⟵ الجواب، مرتّبة حسب الدرس.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+<div id="nav"></div>
+
+<div class="wrap hero">
+  <span class="badge">سر الاختبار · احفظ الإشارات</span>
+  <h1>نصايح الاختبار: شفت الكلمة ⟵ الجواب <span class="small muted" style="font-family:var(--font-en)">Cheat Sheet</span></h1>
+  <p class="sub">الإجابة الصحيحة تتبع إشارة. إذا جتك الكلمة في السؤال، الجواب الغالب يكون زي ما هو مكتوب. راجع المصطلحات أولاً، ثم العب بالنماذج.</p>
+  <div class="ctrl center" style="justify-content:center;margin-top:10px">
+    <a class="btn" href="lessons/c1.html">ابدأ من الدرس الأول ←</a>
+    <a class="btn ghost" href="quiz.html">الاختبار الشامل 🧠</a>
+  </div>
+</div>
+
+<div class="wrap" id="tips"></div>
+<div class="wrap"><div class="fc-zone" data-flash></div></div>
+
+<footer><div class="wrap center">Data Science Study Hub · نصايح الاختبار</div></footer>
+
+<script src="assets/core.js"></script>
+<script src="lessons/data-c1.js"></script>
+<script src="lessons/data-c2.js"></script>
+<script src="lessons/data-c3.js"></script>
+<script src="lessons/data-c4.js"></script>
+<script src="lessons/data-c5.js"></script>
+<script src="lessons/data-c6.js"></script>
+<script>
+  DS.nav('tips');
+  const IDS = ['c1','c2','c3','c4','c5','c6'];
+  const host = document.getElementById('tips');
+  host.innerHTML = IDS.map(id => {
+    const L = window['LESSON_' + id.toUpperCase()];
+    return `<div class="lesson-sec" id="tips-${id}">
+      <div class="sec-head"><span class="idx">${L.num}</span><h2>${DS.esc(L.titleAr)}</h2></div>
+      ${L.tips.map(t => `<div class="tiprow"><div class="kw">لو شفت: <b>${DS.esc(t.kw)}</b><br><span class="small muted">${DS.esc(t.hint || '')}</span></div><div class="ans">الجواب: <b>${t.ans}</b></div></div>`).join('')}
+      <a class="btn sm ghost" style="margin-top:14px" href="lessons/${id}.html">راجع الدرس ${L.num} كاملًا ←</a>
+    </div>`;
+  }).join('');
+  const cards = IDS.flatMap(id => window['LESSON_' + id.toUpperCase()].glossary.map(g => ({ front: g.en, sub: g.ar, back: g.def })));
+  DS.flashcards(document.querySelector('[data-flash]'), cards);
+</script>
+</body>
+</html>

@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Data Science Study Hub · مركز مراجعة علم البيانات</title>
+<meta name="description" content="6 دروس مكثّفة في علم البيانات بأسلوب مبسّط: شرح كأنك تسمعه أول مرة، رسومات SVG، محاكاة تفاعلية، ألعاب ثلاثية الأبعاد، وأكثر من 190 سؤال اختبار.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+<div id="nav"></div>
+
+<div class="wrap hero">
+  <span class="badge">6 دروس · أكثر من 190 سؤال · ألعاب ومحاكاة</span>
+  <h1>علم البيانات <span class="small muted" style="font-family:var(--font-en)">Data Science, explained simply</span></h1>
+  <p class="sub">شرح كأنك تسمعه أول مرة — ثم المصطلحات بالإنجليزي، التطبيقات على الواقع، ألعاب ثلاثية الأبعاد، واختبار بعد كل درس. ابدأ من الدرس الأول وامشِ بالترتيب.</p>
+  <div class="ctrl center" style="justify-content:center;margin-top:10px">
+    <a class="btn" href="lessons/c1.html">ابدأ الدرس الأول ←</a>
+    <a class="btn ghost" href="quiz.html">الاختبار الشامل 🧠</a>
+    <button class="btn ghost" id="resetP">تصفير التقدّم</button>
+  </div>
+</div>
+
+<div class="wrap" id="cards"></div>
+
+<footer><div class="wrap center">Data Science Study Hub · ds.qam3.qd.je</div></footer>
+
+<script src="assets/core.js"></script>
+<script>
+  DS.nav('home');
+  const host = document.getElementById('cards');
+  const units = {};
+  DS.LESSONS.forEach(l => {
+    const u = l.unit.split('·')[0].trim();
+    (units[u] = units[u] || []).push(l);
+  });
+  host.innerHTML = Object.keys(units).map(u => `
+    <h2 class="unit-head">${DS.esc(u)}</h2>
+    <div class="grid g2">
+      ${units[u].map(l => {
+        const best = DS.P.best(l.id);
+        const done = DS.P.isDone(l.id);
+        return `<a class="mini lesson-card" href="lessons/${l.id}.html">
+          <div class="lc-top">
+            <span class="lc-n">${l.n}</span>
+            <span class="pill"><b>${DS.esc(l.en)}</b></span>
+            ${done ? '<span class="pill done">✓ مكتمل</span>' : ''}
+          </div>
+          <h3>${DS.esc(l.t)}</h3>
+          <div class="ar small muted">${DS.esc(l.en)}</div>
+          <div class="lc-foot">
+            <span class="chip sm"><div class="v">${best ? best.p + '/' + best.t : '—'}</div><div class="k">أفضل نتيجة</div></span>
+            <span class="btn sm">افتح الدرس ←</span>
+          </div>
+        </a>`;
+      }).join('')}
+    </div>`).join('');
+  document.getElementById('resetP').onclick = () => {
+    DS.P.reset(); location.reload();
+  };
+</script>
+</body>
+</html>
